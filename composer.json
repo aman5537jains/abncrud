@@ -1,0 +1,28 @@
+{
+    "name": "abno/abncrud",
+    "description": "Abno Cms CRUD",
+    "type": "library",
+    "license": "MIT",
+    "keywords":["crud"],
+    "authors": [
+        {
+            "name": "aman",
+            "email": "ajain@abnosoftwares.co.ke"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Aman5537jains\\AbnCmsCRUD\\": "/src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Aman5537jains\\AbnCmsCRUD\\AbnCmsCRUDServiceProvider"
+            ]
+        }
+    },
+    "require": {
+
+    }
+}

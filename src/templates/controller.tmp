@@ -1,0 +1,42 @@
+<?php
+namespace App\Http\Controllers\Front;
+use Illuminate\Http\Request;
+use Aman5537jains\AbnCmsCRUD\CrudController;
+use Aman5537jains\AbnCmsCRUD\Components\InputComponent;
+use Illuminate\Support\Facades\Route;
+
+class CONTROLLER_NAME extends CrudController
+{
+    public $module ="MODULE_NAME";
+    public $uniqueKey ="UNIQUE_KEY";
+    public $moduleTitle="MODULE_TITLE";
+
+    public function getModel(){
+        return MODEL_CLASS;
+    }
+
+    function routes(){
+        parent::routes();
+    }
+
+    public function viewFields($builder){
+        $builder->addField("staff_id");
+        return $view;
+    }
+
+    public function search(Request $request,$slug=""){
+        $query = parent::search($request,$slug);
+        return $query->where("branch_id",getMyCurrentBranch());
+    }
+
+    public function formBuilder($model){
+        $model  =   $this->getModel();
+        $this->layouts["form"] = $form =  (new FormBuilder(["module"=>$this->module,"action"=>"store"],$this));
+        $form->setModel(new $model)
+        FORM_FIELDS
+        return $form;
+    }
+
+
+
+}
