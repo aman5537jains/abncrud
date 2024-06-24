@@ -118,30 +118,9 @@ class FileInputComponent extends FormComponent{
 
     function upload($fileName,$path="")
     {
-            $file = $fileName;
-            $path = $path==""?$this->getConfig("path","cms"):"cms";
-            $uploadFolerExist = 'storage/uploads/';
-            if(!is_dir($uploadFolerExist)){
-                mkdir("storage/uploads/");
-                chmod("storage/uploads/", 0755);
-            }
-
-            $destinationPath = 'storage/uploads/'.$path;
-
-            // Check to see if directory already exists
-            $exist = is_dir($destinationPath);
-            // If directory doesn't exist, create directory
-            if(!$exist) {
-
-                mkdir("$destinationPath");
-                chmod("$destinationPath", 0755);
-            }
-
-            $extension = $file->getClientOriginalExtension();
-            $fileName = strtotime(now()).'-'.rand(11111,99999).'.'.$extension;
-            $file->move($destinationPath, $fileName);
-            // dd($destinationPath."/".$fileName);
-            return $destinationPath."/".$fileName;
+        $path = $path==""?$this->getConfig("path","cms"):"cms";
+        $path = $fileName->store("public/".$path);
+        return  str_replace("public/","storage/",$path);
     }
     function uploadwithresize($file,$path,$height=null,$width=null)
     {
