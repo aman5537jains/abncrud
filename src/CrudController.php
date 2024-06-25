@@ -248,6 +248,8 @@ class CrudController extends Controller
         foreach($arr as $fldName=>$opt){
             $builder->addField($fldName,$opt);
         }
+        $model = $this->getModel();
+        method_exists($model,'crudFormColumns')? $model::crudFormColumns($builder):[];
         //     // Field
         //     // Type
         //     // Null
@@ -316,6 +318,8 @@ class CrudController extends Controller
         foreach($arr as $fldName=>$opt){
             $builder->addField($fldName,$opt);
         }
+        $model = $this->getModel();
+        method_exists($model,'crudViewColumns')? $model::crudViewColumns($builder):[];
         return $arr;
 
     }
