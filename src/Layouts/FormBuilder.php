@@ -101,8 +101,14 @@ class FormBuilder  extends OneRowLayout
             }
         }
         $arr['submit']=["class"=>SubmitButtonComponent::class,"config"=>["label"=>"Save","url"=>$this->getConfig("back_url","")]];
+        $model = $this->getModel();
+        $cols = method_exists($model,'crudColumns')? $model::crudColumns():["form"=>[]];
         foreach($arr as $fldName=>$opt){
-            $builder->addField($fldName,$opt);
+
+            if(isset($cols['form']) && isset($cols['form'][$fldName]))
+                $builder->addField($fldName,$cols['form'][$fldName]);
+            else
+                $builder->addField($fldName,$opt);
         }
         return $arr;
    }
