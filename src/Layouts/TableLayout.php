@@ -64,14 +64,11 @@ public function viewFields($builder){
 //                 "uniqueKey"=>$this->getConfig("uniqueKey","id"),"allowed"]
 //   ];
     $model = $this->getModel();
-    $cols = method_exists($model,'crudViewColumns')? $model::crudViewColumns($arr):[];
+    $arr = method_exists($model,'crudViewColumns')? $model::crudViewColumns($arr):$arr;
     foreach($arr as $fldName=>$opt){
-        if(  isset($cols[$fldName]))
-            $builder->addField($fldName,$cols[$fldName]);
-        else
             $builder->addField($fldName,$opt);
     }
-  return $arr;
+    return $arr;
 
 }
   public function addColumnDefination($model,$values){
