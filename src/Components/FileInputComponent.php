@@ -119,7 +119,7 @@ class FileInputComponent extends FormComponent{
     function upload($fileName,$path="")
     {
 
-        return  AbnCms::upload($fileName,$path==""?$this->getConfig("path","cms"):"cms")
+        return  AbnCms::upload($fileName,$path==""?$this->getConfig("path","cms"):"cms");
 
     }
     function uploadwithresize($file,$path,$height=null,$width=null)
