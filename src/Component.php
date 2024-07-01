@@ -44,6 +44,7 @@ abstract class Component{
          foreach($atrr as $k=>$val){
              $str.="$k=\"$val\" ";
          }
+
          return $str;
      }
      function getAttribute($name){
@@ -238,7 +239,8 @@ abstract class Component{
     abstract function view();
 
     function parentContainer($view,$jsComponent){
-        return '<div '.htmlspecialchars($jsComponent).' >'. $view . "</div>";
+
+        return "<div ".$jsComponent." >". $view . "</div>";
     }
 
     function render(){
@@ -303,12 +305,15 @@ abstract class Component{
                         $encodedExtended.=$key.":".$val;
                     }
                     $encodedExtended .= "}";
+                    $encodedExtended=htmlspecialchars($encodedExtended);
+
                 }
 
 
                 // $jsConfig= base64_encode($encoded);
 
                 // $scripFnName = "<img style='display:none' id='$componentID' src onError='crudBuilderJS.call(\"$cName\",this.nextSibling,\"$jsConfig\",\"$componentID\")' />";
+
                 $scripFnName = " x-data='$cNameTrimed($encodedExtended)' ";
 
 

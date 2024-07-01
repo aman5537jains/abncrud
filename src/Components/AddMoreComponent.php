@@ -37,11 +37,12 @@ class AddMoreComponent extends MultiFormBuilder{
 
         $xModel = $this->hasAttribute("x-model");
 
-        $setter="function(value){ }";
+        $setter= "function(value){ }";
         if($xModel){
             $xModel = $this->getAttribute("x-model");
             $setter="function(value){ $xModel = value } ";
         }
+
         return ["itemOriginal"=>$this->originalItems,"items"=>$items,"key"=>$this->getConfig("name","form"),"setter"=>function()use($setter){
             return $setter;
         }];
