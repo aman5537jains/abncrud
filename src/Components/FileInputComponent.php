@@ -23,7 +23,15 @@ class FileInputComponent extends FormComponent{
    }
     function registerJsComponent(){
         return "{
-            function init2(){
+        init(){
+          fileComponentInit(this.\$el,config)
+        }
+             }";
+    }
+
+    function js(){
+
+        "function fileComponentInit(component,config){
                 var fileBuffer = new DataTransfer();
                 let fileInput = $(component).find('input[type=file]')[0];
                 let prevContainer = $(component).find('.img-preview-container')[0];
@@ -105,15 +113,8 @@ class FileInputComponent extends FormComponent{
                     });
 
             }
+";
 
-
-
-
-
-
-
-
-        }";
     }
 
 
