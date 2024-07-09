@@ -248,8 +248,6 @@ class CrudController extends Controller
         foreach($arr as $fldName=>$opt){
             $builder->addField($fldName,$opt);
         }
-        $model = $this->getModel();
-        method_exists($model,'crudFormColumns')? $model::crudFormColumns($builder):[];
         //     // Field
         //     // Type
         //     // Null
@@ -318,8 +316,6 @@ class CrudController extends Controller
         foreach($arr as $fldName=>$opt){
             $builder->addField($fldName,$opt);
         }
-        $model = $this->getModel();
-        method_exists($model,'crudViewColumns')? $model::crudViewColumns($builder):[];
         return $arr;
 
     }
@@ -482,7 +478,7 @@ class CrudController extends Controller
         $form =$this->formBuilder($this->getModelObject()->where($this->uniqueKey,$slug)->first())
         ->setConfig("action",$this->action("update",[$slug]));
         if($slug!=""){
-
+             
             $form =$form->setValue(array_merge($form->getModel()->toArray(),old()));
         }
 
@@ -514,16 +510,12 @@ class CrudController extends Controller
     public function afterSave($form,$model){
 
     }
-    public function onDelete(Request $request,$slug){
+    public function delete(Request $request,$slug){
         $this->hasPermission("delete");
         $model = new $this->model;
         $model->where($this->uniqueKey,$slug)->delete();
         $this->flash("Record deleted Successfully");
-        return true;
-    }
-    public function delete(Request $request,$slug){
-         $this->onDelete($request,$slug);
-         return redirect($this->action("index"));
+        return redirect($this->action("index"));
     }
     public function changeStatus(Request $request,$slug){
         $this->hasPermission("edit");

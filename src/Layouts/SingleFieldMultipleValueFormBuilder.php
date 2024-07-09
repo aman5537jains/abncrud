@@ -94,11 +94,9 @@ class SingleFieldMultipleValueFormBuilder extends FormBuilder{
 
 
         $attr = $field->getConfig("attr",[]);
-        //
         $name = $field->getConfig("name");
         $multiple = $field->getConfig("multiple",false);
         $attr["name"]="$formName"."[".$name."]".($multiple?"[]":"");
-
         $field->setConfig("attr",$attr);
 
         if($this->relation->count()>0){

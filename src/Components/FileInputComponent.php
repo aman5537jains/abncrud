@@ -20,8 +20,8 @@ class FileInputComponent extends FormComponent{
         return $this->validator()->getValidations();
    }
     function registerJsComponent(){
-        return "{
-            function init2(){
+        return "(component,config)=>{
+            function init(){
                 var fileBuffer = new DataTransfer();
                 let fileInput = $(component).find('input[type=file]')[0];
                 let prevContainer = $(component).find('.img-preview-container')[0];
@@ -105,7 +105,7 @@ class FileInputComponent extends FormComponent{
             }
 
 
-
+            init();
 
 
 
@@ -118,9 +118,30 @@ class FileInputComponent extends FormComponent{
 
     function upload($fileName,$path="")
     {
+            $file = $fileName;
+            $path = $path==""?$this->getConfig("path","cms"):"cms";
+            $uploadFolerExist = 'storage/uploads/';
+            if(!is_dir($uploadFolerExist)){
+                mkdir("storage/uploads/");
+                chmod("storage/uploads/", 0755);
+            }
 
-        return  AbnCms::upload($fileName,$path==""?$this->getConfig("path","cms"):"cms");
+            $destinationPath = 'storage/uploads/'.$path;
 
+            // Check to see if directory already exists
+            $exist = is_dir($destinationPath);
+            // If directory doesn't exist, create directory
+            if(!$exist) {
+
+                mkdir("$destinationPath");
+                chmod("$destinationPath", 0755);
+            }
+
+            $extension = $file->getClientOriginalExtension();
+            $fileName = strtotime(now()).'-'.rand(11111,99999).'.'.$extension;
+            $file->move($destinationPath, $fileName);
+            // dd($destinationPath."/".$fileName);
+            return $destinationPath."/".$fileName;
     }
     function uploadwithresize($file,$path,$height=null,$width=null)
     {
