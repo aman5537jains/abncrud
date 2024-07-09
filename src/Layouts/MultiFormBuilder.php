@@ -115,7 +115,9 @@ class MultiFormBuilder extends FormBuilder{
 
     function beforeRender($cmp)
     {
+
         $fields = $this->getFields();
+
         $formName = $this->getConfig("name","form");
         $i=0;
 
@@ -124,6 +126,7 @@ class MultiFormBuilder extends FormBuilder{
             $name = $field->getConfig("name");
             $multiple = $field->getConfig("multiple",false);
             $attr["name"]="$formName"."[0]"."[".$name."]".($multiple?"[]":"");
+
             $field->setConfig("attr",$attr);
             $i++;
         }

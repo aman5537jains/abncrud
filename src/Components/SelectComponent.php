@@ -8,10 +8,14 @@ class SelectComponent extends FormComponent{
 
 
     function registerJsComponent(){
-        return "(component,config)=>{
 
-            initSelect2(component,config)
-        }";
+        return " {
+            config:config,
+            init(){
+                    console.log('select2',this.\$el,this.config);
+                     initSelect2( this.\$el,this.config)
+            }
+        } ";
     }
 
 
@@ -19,14 +23,16 @@ class SelectComponent extends FormComponent{
 
 
                 return "
-
+                <link href='https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css' rel='stylesheet' />
+                <script src='https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js'></script>
                 <script>
 
                 function initSelect2(component,config){
 
 
                     let that = $(component).find('.searchbleselect');
-
+                    console.log('that',that)
+                    $(that).select2();
                     // var config = JSON.parse($(that).attr('config'));
 
                     if(config.dependentOf){

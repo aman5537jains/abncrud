@@ -6,19 +6,16 @@ use Illuminate\Support\Facades\Validator;
 abstract class FormComponent extends Component{
 
     private $__validations;
+    private $__clasess='';
 
     function getAttributes(){
         $name           = $this->getConfig("name");
         $id             = $this->getConfig("id",$name);
         $validations    = $this->validator();
         $required       = $validations->isRequired();
-        $inputClass     = $this->getConfig("input-class","dForm-control");
+        $inputClass     = $this->getConfig("input-class","dForm-control")." ".$this->__clasess;
         $placeholder    = $this->getConfig("placeholder",$this->getConfig("label",""));
-        return  ['placeholder' => $placeholder, 'required'=>$required, 'class'=>$inputClass,"id"=>$id]+$this->getConfig("attr",[]);
-    }
-    function setAttributes($arr){
-        $this->setConfig("attr",$arr);
-        return  $this;
+        return  array_merge(['placeholder' => $placeholder, 'required'=>$required, 'class'=>$inputClass,"id"=>$id,"name"=>$name],$this->getConfig("attr",[]));
     }
 
     function buildInput($name,$attrs){
@@ -87,12 +84,13 @@ abstract class FormComponent extends Component{
         $labelClass     = $this->getConfig("label-class","dForm-label");
         $name           = $this->getConfig("name");
         $validations = $this->validations();
+        $attributes = $this->getAttributes();
 
 
         // if( ){
 
         // }
-        $input          = $this->buildInput($name,$this->getAttributes());
+        $input          = $this->buildInput($attributes["name"],$this->getAttributes());
         if($this->getConfig("showLabel",true)){
             return '<div class="'.$class.'">
             <label class="'.$labelClass.'">'.$this->getLabel().' '.$this->requiredSpan().'</label>

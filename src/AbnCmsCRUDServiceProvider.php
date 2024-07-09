@@ -26,9 +26,9 @@ class AbnCmsCRUDServiceProvider extends ServiceProvider
             return CrudService::renderComponent();
 
         })->name("component-render");
-        // $this->publishes([
-        //     __DIR__.'/resources/assets' => public_path('ReportBuilder'),
-        // ], 'assets');
+        $this->publishes([
+            __DIR__.'/resources/assets' => public_path('vendor/abncrud'),
+        ], 'assets');
         // $this->loadMigrationsFrom(__DIR__.'/migrations');
         // $this->publishes([
         //     __DIR__.'/views' => base_path('resources/views/aman'),

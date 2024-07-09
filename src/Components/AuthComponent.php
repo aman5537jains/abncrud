@@ -15,11 +15,14 @@ class AuthComponent extends FormComponent{
  }
 
     function getValue(){
+
+
         if($this->getConfig("user_id",false)){
             return  Auth::user()->id;
         }
 
         return 0;
+
     }
 
     function view(){

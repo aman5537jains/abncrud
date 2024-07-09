@@ -9,9 +9,9 @@ class TextComponent extends ViewComponent{
 
 
     function js(){
-
         return "";
     }
+
     function getValue()
     {
         $parent=parent::getValue();

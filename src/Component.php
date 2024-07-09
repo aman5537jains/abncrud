@@ -13,6 +13,7 @@ abstract class Component{
     public $js='';
     public $CID;
     public static $counter=0;
+    private $__clasess='';
      function __construct($config,$controller=null)
      {
         $this->controller =$controller;
@@ -25,6 +26,49 @@ abstract class Component{
      function  generateComponnetUID(){
         Component::$counter =  Component::$counter+1;
         return "cmp_".Component::$counter;
+     }
+
+
+     function getAttributes(){
+         $name           = $this->getConfig("name");
+         $id             = $this->getConfig("id",$name);
+
+
+         $inputClass     = $this->getConfig("input-class","dForm-control")." ".$this->__clasess;
+         $placeholder    = $this->getConfig("placeholder",$this->getConfig("label",""));
+         return  array_merge(['placeholder' => $placeholder, 'class'=>$inputClass,"id"=>$id,"name"=>$name],$this->getConfig("attr",[]));
+     }
+     function getAttributesString(){
+         $atrr = $this->getAttributes();
+         $str="";
+         foreach($atrr as $k=>$val){
+             $str.="$k=\"$val\" ";
+         }
+
+         return $str;
+     }
+     function getAttribute($name){
+         $atrr = $this->getAttributes();
+         return isset($atrr[$name])?$atrr[$name]:"";
+     }
+     function hasAttribute($name){
+        $atrr = $this->getAttributes();
+        return isset($atrr[$name]);
+    }
+
+
+     function addClass($classes){
+         $this->__clasess.= $classes;
+         return $this;
+     }
+     function setAttributes($arr){
+         $this->setConfig("attr",$arr);
+         return  $this;
+     }
+     function addAttributes($arr){
+         $attr = $this->getConfig("attr",[]);
+         $this->setConfig("attr", array_merge($attr,$arr));
+         return  $this;
      }
 
      function  setComponentID($id){
@@ -154,6 +198,16 @@ abstract class Component{
     }
     function json(){
 
+        $rendered  =$this->render();
+        $jsAll = [];
+        foreach(CrudService::$allJs as $js=>$value){
+            $jsAll[str_replace("\\","",$js)]=$value["js"]."<script>".$value['alpine']."</script>";
+        }
+        return [
+
+            "html"=>$rendered,
+            "js"=>$jsAll
+        ];
     }
 
     function setView($html){
@@ -168,6 +222,12 @@ abstract class Component{
 
         return $this->getConfig("componentName",get_class($this));
     }
+    function componentJs(){
+        $cname = $this->componentName();
+        $id    = $this->componentID();
+        return "crudBuilderJS.component('$cname','$id')";
+    }
+
     function registerJsComponent(){
         $cmp = $this->componentName();
         return false;
@@ -178,6 +238,10 @@ abstract class Component{
 
     abstract function view();
 
+    function parentContainer($view,$jsComponent){
+
+        return "<div ".$jsComponent." >". $view . "</div>";
+    }
 
     function render(){
         try{
@@ -190,18 +254,73 @@ abstract class Component{
 
             $js  = $this->getConfig("js","");
             $cName= $this->componentName();
+            $cNameTrimed =  str_replace("\\","",$cName);
             $jsOnce='';
             $scripFnName= '';
             $componentID = $this->componentID();
+            $scripFnName ='';
+            $scripFnNameClose ='';
+            $JSALPINE ="window['crudBuilderJS'].alpines['$cNameTrimed']=1;";
             if($this->registerJsComponent()){
+                $object = $this->registerJsComponent();
 
-                $jsOnce = "<script>crudBuilderJS.register(\"$cName\",".$this->registerJsComponent().");</script>";
-                $jsConfig= base64_encode(json_encode($this->jsConfig()));
-                $scripFnName = "<img style='display:none' id='$componentID' src onError='crudBuilderJS.call(\"$cName\",this.nextSibling,\"$jsConfig\",\"$componentID\")' />";
+                $JSALPINE= "
+                        window['crudBuilderJS'].alpines['$cNameTrimed']=1;
+                        Alpine.data('$cNameTrimed', (config={}) => {
+
+                             return $object;
+
+                        });
+
+                ";
+                // $jsOnce = "<script>crudBuilderJS.register(\"$cName\",".$this->registerJsComponent().",'$componentID');</script>";
+                // $jsOnce = "<script>$JSALPINE</script>";
+
+                // $encoded = json_encode($this->jsConfig());
+
+                if(is_string($this->jsConfig())){
+                    $encodedExtended =$this->jsConfig();
+                }
+                else{
+                    $encodedExtended = "{";
+                    foreach($this->jsConfig() as $key=>$val){
+                        if($encodedExtended!="{"){
+                            $encodedExtended.=",";
+                        }
+                        if(is_string($val))
+                        {
+
+                            $val = '"'.addslashes($val).'"' ;
+                        }
+                        else if(is_array($val)){
+                            $val = json_encode($val);
+                        }
+                        else if(is_bool($val)){
+                            $val = $val?"true":"false";
+                        }
+                        else if(is_callable($val)){
+                            $val= $val();
+                        }
+
+                        $encodedExtended.=$key.":".$val;
+                    }
+                    $encodedExtended .= "}";
+                    $encodedExtended=htmlspecialchars($encodedExtended);
+
+                }
+
+
+                // $jsConfig= base64_encode($encoded);
+
+                // $scripFnName = "<img style='display:none' id='$componentID' src onError='crudBuilderJS.call(\"$cName\",this.nextSibling,\"$jsConfig\",\"$componentID\")' />";
+
+                $scripFnName = " x-data='$cNameTrimed($encodedExtended)' ";
+
 
             }
-
-            CrudService::registerJs($this->componentName(),$js.$jsOnce ."". $this->js());
+            // else
+            // $jsOnce = "<script>crudBuilderJS.register(\"$cName\",".$this->registerJsComponent().",'$componentID');</script>";
+            CrudService::registerJs($this->componentName(),$js.$jsOnce ."". $this->js(),$JSALPINE,$componentID);
 
             // $scripFnName='';
             // if($this->scriptFunctionName()!=''){
@@ -209,7 +328,7 @@ abstract class Component{
                  // }
 
 
-            $this->view =  "$scripFnName".$this->view()."";
+            $this->view =  $this->parentContainer($this->view(),$scripFnName);
 
             $init = $this->getConfig("afterRender",null);
             if($init){

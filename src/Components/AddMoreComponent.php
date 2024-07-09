@@ -1,5 +1,7 @@
 <?php
 namespace Aman5537jains\AbnCmsCRUD\Components;
+
+use Aman5537jains\AbnCmsCRUD\Layouts\FormBuilder;
 use Aman5537jains\AbnCmsCRUD\Layouts\MultiFormBuilder;
 class AddMoreComponent extends MultiFormBuilder{
 
@@ -7,43 +9,24 @@ class AddMoreComponent extends MultiFormBuilder{
     public $allItems = [];
 
     function registerJsComponent(){
-        return "(component,config)=>{
 
-              if(!component.hasAttribute('data-v-app')){
-             const POS = {
-                data: function() {
-                    return {
-                        originalItem:config.itemOriginal,
-                        items:config.items
-                    }
+        return " {
+                config:config,
+
+                init(){
+                    this.\$watch('config.items',(value)=>{
+                        this.config.setter(value);
+                    })
                 },
-                mounted:function(){
-
-                    // this.add();
+                add(){
+                    this.config.items.push(JSON.parse(JSON.stringify(this.config.itemOriginal)));
                 },
-                methods: {
-                    add:function(){
-
-                        this.items.push(JSON.parse(JSON.stringify(this.originalItem)));
-
-                    },
-                    remove:function(index){
-
-                        this.items.splice(index,1)
-                    }
+                remove(index){
+                    this.config.items.splice(index,1)
                 }
-            }
-            const addMoreapp = Vue.createApp(POS)
-            addMoreapp.mount(component);
-            }
+
         }";
     }
-
-    function js(){
-        return '<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>';
-    }
-
-
 
     function jsConfig(){
 
@@ -52,7 +35,17 @@ class AddMoreComponent extends MultiFormBuilder{
           $items = [];
         }
 
-        return ["itemOriginal"=>$this->originalItems,"items"=>$items,"key"=>$this->getConfig("name","form")];
+        $xModel = $this->hasAttribute("x-model");
+
+        $setter= "function(value){ }";
+        if($xModel){
+            $xModel = $this->getAttribute("x-model");
+            $setter="function(value){ $xModel = value } ";
+        }
+
+        return ["itemOriginal"=>$this->originalItems,"items"=>$items,"key"=>$this->getConfig("name","form"),"setter"=>function()use($setter){
+            return $setter;
+        }];
     }
 
 
@@ -62,26 +55,53 @@ class AddMoreComponent extends MultiFormBuilder{
         $formName = $this->getConfig("name","form");
 
         $i=0;
-        foreach($fields as $key=>$field){
 
-            $attr = $field->getConfig("attr",[]);
-            $name = $field->getConfig("name");
-            $attr["v-model"]= "$formName.$name";
-            $attr[":name"]="'".$formName."['+index+'][$name]'";
-            $attr["vname"]="$formName.$name";
-            $field->setConfig("attr",$attr);
-            $this->originalItems[$name]=$field->getValue();
-            $i++;
+        foreach($fields as $key=>$field){
+            if($field instanceof FormBuilder){
+                foreach($field->getFields() as $innerFields){
+                    $attr               = $innerFields->getConfig("attr",[]);
+                    $name               = $innerFields->getConfig("name");
+
+
+                        $attr["x-model"]    = "$formName.$name";
+                        $attr[":name"]      = "'".$formName."['+index+'][$name]'";
+
+                    $attr["vname"]      = "$formName.$name";
+                    $innerFields->setConfig("attr",$attr);
+                    $this->originalItems[$name]= $innerFields->getValue();
+                    $i++;
+                }
+
+            }
+            else{
+                $attr               = $field->getConfig("attr",[]);
+
+                $name               = $field->getConfig("name");
+
+                    $attr["x-model"]    = "$formName.$name";
+                    $attr[":name"]      = "'".$formName."['+index+'][$name]'";
+
+
+                $attr["vname"]      = "$formName.$name";
+                $field->setConfig("attr",$attr);
+                $this->originalItems[$name]= $field->getValue();
+                $i++;
+            }
+
         }
+
         ;
 
     }
-
+    function init()
+    {
+        parent::init();
+        $this->setConfig("form",false);
+    }
     function view(){
-
         $view = parent::view();
-
         $key = $this->getConfig("name","form");
-        return "<div class='addMoreapp' > <div v-for='($key,index) of items'>   ".$view." <a href='javascript:void(0)' @click='remove(index)'>X</a></div> <button type='button' @click='add()'>Add</button></div>";
+        $label = $this->getLabel();
+        return "<div class='addMoreapp' >$label  <template x-for='($key,index) of config.items'>  <div> ".$view." <a href='javascript:void(0)' @click='remove(index)'>X</a></div></template> <button class='buttons secondary' type='button' @click='add()'>Add More</button></div>";
     }
 }

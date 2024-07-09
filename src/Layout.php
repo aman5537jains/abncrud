@@ -84,7 +84,6 @@ abstract class Layout extends Component{
             $newFilds[$fld] =$this->getField($fld);
         }
         $this->setFields($newFilds);
-        return $this;
     }
 
     function modifyField($name,$callback){

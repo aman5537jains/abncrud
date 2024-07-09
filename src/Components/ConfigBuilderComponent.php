@@ -8,10 +8,38 @@ use Aman5537jains\AbnCmsCRUD\ViewComponent;
 
 class ConfigBuilderComponent extends FormComponent{
     private $formBuilder;
+
+
+    function jsConfig()
+    {
+
+        return ["form"=>$this->getValue()];
+    }
+    function registerJsComponent()
+    {
+
+
+
+
+
+
+        return "{
+            init(){
+                // console.log(this.form,'form')
+                this.\$watch('form',(value)=>{
+                    this.class_config = JSON.stringify(value);
+                })
+            },
+            form :JSON.parse(config.form),
+            config_val:config.form
+
+
+        }";
+    }
     public function init(){
         parent::init();
 
-        //  = $this->setConfig("name","form");
+
         $this->formBuilder= new FormBuilder(["name"=>"formbuilder"]);
 
         $this->formBuilder->setConfig("form",false);
@@ -22,29 +50,23 @@ class ConfigBuilderComponent extends FormComponent{
 
             if(is_array($field) || is_object($field) ){
                 $field->setConfig("input-class","dForm-control config_input");
+                $field->addAttributes(["x-model"=>"form.".$name]);
+                // $field->setConfig("name","form.".$name);
                 $this->formBuilder->addField($name,$field);
             }
             else{
-                $this->formBuilder->addField($name,new InputComponent(["name"=>$name,"value"=>$field,"input-class"=>"dForm-control config_input"]));
+                $newfield = new InputComponent(["name"=>$name,"value"=>$field,"input-class"=>"dForm-control config_input"]);
+                $newfield->addAttributes(["x-model"=>"form.".$name]);
+
+                $this->formBuilder->addField($name,$newfield);
             }
         }
+        // $input = new InputComponent(["name"=>$this->getConfig("name"),"value"=>$this->getValue(),"type"=>"hidden","attr"=>["x-model"=>"config_val"] ]);
 
-        $html =new HtmlComponent(["name"=>"submit"]);
-        $html->setView("<button type='button' class='saveconfig'>Save</button>");
-        $html->setJs("<script>
+        // $this->formBuilder->addField($this->getConfig("name"),$input);
 
-            $(document).on('click','.saveconfig',function(){
-                let json = {};
-                $('.config_input').each(function(k,v){
-                    json[$(this).attr('name')]=$(this).val();
 
-                    console.log($(this).val(),$(this).attr('name'));
-                })
 
-                $('input[name=config]').val(JSON.stringify(json));
-            });
-        </script>");
-        $this->formBuilder->addField("submit",$html);
     }
 
 
@@ -59,11 +81,12 @@ class ConfigBuilderComponent extends FormComponent{
 
 
     function view(){
-        $form =$this->formBuilder->render();
-        $input = new InputComponent(["name"=>$this->getConfig("name"),"value"=>$this->getValue(),"type"=>"hidden"]);
 
-        $PopupComponent =  new PopupComponent(["label"=>"Config","content"=>$form.$input]);
 
-       return  "<div class='config-builder' >".$PopupComponent."</div>";
+            return  $this->formBuilder->render();
+
+
+
     }
 }
+

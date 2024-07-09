@@ -4,13 +4,9 @@ namespace Aman5537jains\AbnCmsCRUD\Layouts;
 
 use Aman5537jains\AbnCmsCRUD\Components\InputComponent;
 use Aman5537jains\AbnCmsCRUD\Components\FileInputComponent;
-
-
 use Aman5537jains\AbnCmsCRUD\Components\SubmitButtonComponent;
-
-use Aman5537jains\AbnCmsCRUD\FormComponent;
-use Aman5537jains\AbnCmsCRUD\Layout;
 use Illuminate\Support\Facades\Validator;
+
 class FormBuilder  extends OneRowLayout
 {
     public $template;
@@ -23,17 +19,21 @@ class FormBuilder  extends OneRowLayout
         $this->setConfig("input-layout","AbnCmsCrud::crud.form-input");
 
     }
-    function registerJsComponent(){
-        return "(component,config)=>{
+    // function registerJsComponent(){
+    //     return "(component,config){
 
-             initFormBuilder(component,config);
+    //          initFormBuilder(component,config);
 
-        }";
-    }
+    //     }";
+    // }
 
     function jsConfig(){
-        return  json_encode(["ajax"=>$this->getConfig("ajax",false),"back_url"=>$this->getConfig("back_url",""),
-        "onSuccess"=>$this->getConfig("onSuccess","")]);
+        return  ["ajax"=>$this->getConfig("ajax",false),"back_url"=>$this->getConfig("back_url",""),
+        "onSuccess"=>function(){
+           return $this->getConfig("onSuccess","function(){
+            console.log(aaa);
+           }");
+        }];
     }
 
     public function formFields($builder){
@@ -101,9 +101,12 @@ class FormBuilder  extends OneRowLayout
             }
         }
         $arr['submit']=["class"=>SubmitButtonComponent::class,"config"=>["label"=>"Save","url"=>$this->getConfig("back_url","")]];
+        $model = $this->getModel();
+
         foreach($arr as $fldName=>$opt){
             $builder->addField($fldName,$opt);
         }
+        method_exists($model,'crudFormColumns')? $model::crudFormColumns($builder):[];
         return $arr;
    }
     function validate(){
@@ -226,6 +229,7 @@ class FormBuilder  extends OneRowLayout
 
                 $model= $this->onSaveModel($this->getModel());
                 $model = $this->beforeSave($this,$model);
+
                 $model->save();
                 $realtions = $model->getRelations();
 
