@@ -9,7 +9,8 @@
          <div class="dashHead-right">
             <div class="dashHead-action">
                @if($controller->hasPermission("add",$module,false) &&  $canAdd)
-                 <a class="buttons dbtn-secondary" href="{{$controller->action("create")}}"><i class="fas fa-plus-circle"></i>{{'Add '.singularize($module_title)}}</a>
+                 <a class="buttons dbtn-secondary" href="{{$controller->action("create")}}"><i class="fas fa-plus-circle"></i>{{'Add '.   \Illuminate\Support\Str::singular(static::$moduleTitle);
+        return 'Add '.$title;($module_title)}}</a>
                @endif
             </div>
          </div>

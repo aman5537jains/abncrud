@@ -18,6 +18,7 @@ class AuthComponent extends FormComponent{
         if($this->getConfig("user_id",false)){
             return  Auth::user()->id;
         }
+
         return 0;
     }
 

@@ -59,7 +59,8 @@ class CrudController extends Controller
     }
 
     public function addButtonTitle(){
-        return 'Add '.singularize(static::$moduleTitle);
+        $title = \Illuminate\Support\Str::singular(static::$moduleTitle);
+        return 'Add '.$title;
     }
 
 
@@ -478,7 +479,7 @@ class CrudController extends Controller
         $form =$this->formBuilder($this->getModelObject()->where($this->uniqueKey,$slug)->first())
         ->setConfig("action",$this->action("update",[$slug]));
         if($slug!=""){
-             
+
             $form =$form->setValue(array_merge($form->getModel()->toArray(),old()));
         }
 
