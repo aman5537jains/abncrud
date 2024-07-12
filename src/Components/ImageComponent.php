@@ -13,7 +13,7 @@ class ImageComponent extends ViewComponent{
         $height = $this->getConfig("height",100);
         $width = $this->getConfig("width",100);
 
-        return  "<img src='".$this->getValue()."' height='$height' width='$width'  />";
+        return  "<img src='".url($this->getValue())."' height='$height' width='$width'  />";
     }
 
 }
