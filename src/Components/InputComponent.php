@@ -98,6 +98,7 @@ class InputComponent extends FormComponent{
                     $selected = in_array($key,$values)?"selected":"";
                 else
                     $selected ='';
+
                 $select.="<option $selected $stro value='$key'>$option</option>";
             }
 

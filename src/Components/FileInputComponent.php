@@ -2,11 +2,8 @@
 
 namespace Aman5537jains\AbnCmsCRUD\Components;
 
-use Aman5537jains\AbnCms\Lib\AbnCms;
 use Intervention\Image\Facades\Image;
 use Aman5537jains\AbnCmsCRUD\FormComponent;
-use Illuminate\Support\Facades\Blade;
-
 
 
 class FileInputComponent extends FormComponent{
@@ -122,8 +119,9 @@ class FileInputComponent extends FormComponent{
 
     function upload($fileName,$path="")
     {
-
-        return  AbnCms::upload($fileName,$path==""?$this->getConfig("path","cms"):"cms");
+        $path = $fileName->store("public/".$path);
+        return  str_replace("public/","storage/",$path);
+        // return  AbnCms::upload($fileName,$path==""?$this->getConfig("path","cms"):"cms");
 
     }
     function uploadwithresize($file,$path,$height=null,$width=null)

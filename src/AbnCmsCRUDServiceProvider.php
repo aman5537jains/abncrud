@@ -2,8 +2,7 @@
 
 namespace Aman5537jains\AbnCmsCRUD;
 
-use Aman5537jains\AbnCms\Lib\AbnCms;
-use Aman5537jains\AbnCms\Lib\Theme\ScriptLoader;
+
 use Illuminate\Support\ServiceProvider;
 
 class AbnCmsCRUDServiceProvider extends ServiceProvider

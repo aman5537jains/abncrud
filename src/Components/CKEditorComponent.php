@@ -15,31 +15,28 @@ class CKEditorComponent extends FormComponent{
             init(){
                 let elem  = this.\$el;
                 ClassicEditor
-	.create( elem, {
-		simpleUpload: {
-            // The URL that the images are uploaded to.
-            uploadUrl: '$url',
+                        .create( elem, {
+                            simpleUpload: {
+                                // The URL that the images are uploaded to.
+                                uploadUrl: '$url',
 
-            // Enable the XMLHttpRequest.withCredentials property.
-            withCredentials: true,
+                                // Enable the XMLHttpRequest.withCredentials property.
+                                withCredentials: true,
 
-            // Headers sent along with the XMLHttpRequest to the upload server.
-            headers: {
-                'X-CSRF-TOKEN': '$token',
+                                // Headers sent along with the XMLHttpRequest to the upload server.
+                                headers: {
+                                    'X-CSRF-TOKEN': '$token',
 
-            }
-        }
-		// Editor configuration.
-	} )
-	.then( editor => {
-		window.editor = editor;
-	} )
-	.catch(function(e){
+                                }
+                            }
+                            // Editor configuration.
+                        } )
+                        .then( editor => {
+                            window.editor = editor;
+                        } )
+                        .catch(function(e){
 
-    } );
-
-
-
+                        } );
             }
 
         }";
@@ -48,10 +45,7 @@ class CKEditorComponent extends FormComponent{
 
     function js(){
         $js = url("public/vendor/abncrud/js/ckeditor.js");
-        return'
-        <script src="'.$js.'"></script>
-
-        ';
+        return' <script src="'.$js.'"></script>';
     }
     function parentContainer($view, $jsComponent)
     {

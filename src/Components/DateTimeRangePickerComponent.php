@@ -6,8 +6,12 @@ class DateTimeRangePickerComponent extends FormComponent{
 
 
     function registerJsComponent(){
-        return "(component,config)=>{
-            initDatePicker(component,config)
+        return "{
+
+            init(){
+                let elem  = this.\$el;
+                initDatePicker(elem,this.config)
+            }
         }";
     }
 
