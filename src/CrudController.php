@@ -303,17 +303,47 @@ class CrudController extends Controller
             }
         }
         $components = [];
-        if($this->hasPermission("edit")){
-            $components[]= new LinkComponent(["link"=>"", "beforeRender"=>function($component){
+        if($this->hasPermission("edit",static::$module,false)){
+            $components[]= new LinkComponent(["name"=>"edit","link"=>"", "beforeRender"=>function($component){
                 $data = $component->getData();
+
                 $component->setConfig("link",$this->action("edit",[$data["row"]->{$this->uniqueKey}]));
              },
              "label"=>'<svg enable-background="new 0 0 512 512" height="18" viewBox="0 -1 401.52289 401" width="18" xmlns="http://www.w3.org/2000/svg"><g fill="#666"><path d="m370.589844 250.972656c-5.523438 0-10 4.476563-10 10v88.789063c-.019532 16.5625-13.4375 29.984375-30 30h-280.589844c-16.5625-.015625-29.980469-13.4375-30-30v-260.589844c.019531-16.558594 13.4375-29.980469 30-30h88.789062c5.523438 0 10-4.476563 10-10 0-5.519531-4.476562-10-10-10h-88.789062c-27.601562.03125-49.96875 22.398437-50 50v260.59375c.03125 27.601563 22.398438 49.96875 50 50h280.589844c27.601562-.03125 49.96875-22.398437 50-50v-88.792969c0-5.523437-4.476563-10-10-10zm0 0" xmlns="http://www.w3.org/2000/svg"/><path d="m376.628906 13.441406c-17.574218-17.574218-46.066406-17.574218-63.640625 0l-178.40625 178.40625c-1.222656 1.222656-2.105469 2.738282-2.566406 4.402344l-23.460937 84.699219c-.964844 3.472656.015624 7.191406 2.5625 9.742187 2.550781 2.546875 6.269531 3.527344 9.742187 2.566406l84.699219-23.464843c1.664062-.460938 3.179687-1.34375 4.402344-2.566407l178.402343-178.410156c17.546875-17.585937 17.546875-46.054687 0-63.640625zm-220.257812 184.90625 146.011718-146.015625 47.089844 47.089844-146.015625 146.015625zm-9.40625 18.875 37.621094 37.625-52.039063 14.417969zm227.257812-142.546875-10.605468 10.605469-47.09375-47.09375 10.609374-10.605469c9.761719-9.761719 25.589844-9.761719 35.351563 0l11.738281 11.734375c9.746094 9.773438 9.746094 25.589844 0 35.359375zm0 0" xmlns="http://www.w3.org/2000/svg"/></g></svg>']
             );
         }
+        if($this->hasPermission("delete",static::$module,false)){
+            $components[]= new ConfirmLinkComponent(["link"=>"", "beforeRender"=>function($component){
+                $data = $component->getData();
+
+                $component->setConfig("link",$this->action("delete",[$data["row"]->{$this->uniqueKey}]));
+             },
+             "label"=>'<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="18" height="18" viewBox="0 0 30 30">
+             <path d="M 14.984375 2.4863281 A 1.0001 1.0001 0 0 0 14 3.5 L 14 4 L 8.5 4 A 1.0001 1.0001 0 0 0 7.4863281 5 L 6 5 A 1.0001 1.0001 0 1 0 6 7 L 24 7 A 1.0001 1.0001 0 1 0 24 5 L 22.513672 5 A 1.0001 1.0001 0 0 0 21.5 4 L 16 4 L 16 3.5 A 1.0001 1.0001 0 0 0 14.984375 2.4863281 z M 6 9 L 7.7929688 24.234375 C 7.9109687 25.241375 8.7633438 26 9.7773438 26 L 20.222656 26 C 21.236656 26 22.088031 25.241375 22.207031 24.234375 L 24 9 L 6 9 z"></path>
+         </svg>']
+            );
+        }
+
+             if($builder->hasField("status")){
+                $permission = $this->hasPermission("edit",static::$module,false);
+
+                $builder->setField("status",["class"=>ChangeStatusComponent::class,"config"=>["url"=>"",
+                "beforeRender"=>function($component)use($permission){
+                    if($permission){
+                        $data = $component->getData();
+                        $component->setConfig("url",$this->action("changeStatus",[$data["row"]->{$this->uniqueKey}]));
+                    }
+                    else{
+                        $component->setConfig("url","javascript:;");
+                    }
+                }]]);
+
+              }
+
+
+
         if(count($components)>0){
-            $arr['actions']=["class"=>MultiComponent::class,"config"=>["components"=>  $components
-            ]];
+            $builder->addField("actions",["class"=>MultiComponent::class,"config"=>["components"=> $components]]);
         }
         foreach($arr as $fldName=>$opt){
             $builder->addField($fldName,$opt);
@@ -383,54 +413,12 @@ class CrudController extends Controller
     public function viewBuilder($model){
 
         $this->layouts["table"] = $TableLayout =  (new TableLayout(["searchUrl"=>$this->action("index"),
-                "autoBuild"=>true,"search"=>function($model,$q){
+                "autoBuild"=>false,"search"=>function($model,$q){
             return $this->search($model,$q);
         }],$this));
         $TableLayout->setModel($model);
 
-        $components = [];
-        if($this->hasPermission("edit",static::$module,false)){
-            $components[]= new LinkComponent(["name"=>"edit","link"=>"", "beforeRender"=>function($component){
-                $data = $component->getData();
-
-                $component->setConfig("link",$this->action("edit",[$data["row"]->{$this->uniqueKey}]));
-             },
-             "label"=>'<svg enable-background="new 0 0 512 512" height="18" viewBox="0 -1 401.52289 401" width="18" xmlns="http://www.w3.org/2000/svg"><g fill="#666"><path d="m370.589844 250.972656c-5.523438 0-10 4.476563-10 10v88.789063c-.019532 16.5625-13.4375 29.984375-30 30h-280.589844c-16.5625-.015625-29.980469-13.4375-30-30v-260.589844c.019531-16.558594 13.4375-29.980469 30-30h88.789062c5.523438 0 10-4.476563 10-10 0-5.519531-4.476562-10-10-10h-88.789062c-27.601562.03125-49.96875 22.398437-50 50v260.59375c.03125 27.601563 22.398438 49.96875 50 50h280.589844c27.601562-.03125 49.96875-22.398437 50-50v-88.792969c0-5.523437-4.476563-10-10-10zm0 0" xmlns="http://www.w3.org/2000/svg"/><path d="m376.628906 13.441406c-17.574218-17.574218-46.066406-17.574218-63.640625 0l-178.40625 178.40625c-1.222656 1.222656-2.105469 2.738282-2.566406 4.402344l-23.460937 84.699219c-.964844 3.472656.015624 7.191406 2.5625 9.742187 2.550781 2.546875 6.269531 3.527344 9.742187 2.566406l84.699219-23.464843c1.664062-.460938 3.179687-1.34375 4.402344-2.566407l178.402343-178.410156c17.546875-17.585937 17.546875-46.054687 0-63.640625zm-220.257812 184.90625 146.011718-146.015625 47.089844 47.089844-146.015625 146.015625zm-9.40625 18.875 37.621094 37.625-52.039063 14.417969zm227.257812-142.546875-10.605468 10.605469-47.09375-47.09375 10.609374-10.605469c9.761719-9.761719 25.589844-9.761719 35.351563 0l11.738281 11.734375c9.746094 9.773438 9.746094 25.589844 0 35.359375zm0 0" xmlns="http://www.w3.org/2000/svg"/></g></svg>']
-            );
-        }
-        if($this->hasPermission("delete",static::$module,false)){
-            $components[]= new ConfirmLinkComponent(["link"=>"", "beforeRender"=>function($component){
-                $data = $component->getData();
-
-                $component->setConfig("link",$this->action("delete",[$data["row"]->{$this->uniqueKey}]));
-             },
-             "label"=>'<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="18" height="18" viewBox="0 0 30 30">
-             <path d="M 14.984375 2.4863281 A 1.0001 1.0001 0 0 0 14 3.5 L 14 4 L 8.5 4 A 1.0001 1.0001 0 0 0 7.4863281 5 L 6 5 A 1.0001 1.0001 0 1 0 6 7 L 24 7 A 1.0001 1.0001 0 1 0 24 5 L 22.513672 5 A 1.0001 1.0001 0 0 0 21.5 4 L 16 4 L 16 3.5 A 1.0001 1.0001 0 0 0 14.984375 2.4863281 z M 6 9 L 7.7929688 24.234375 C 7.9109687 25.241375 8.7633438 26 9.7773438 26 L 20.222656 26 C 21.236656 26 22.088031 25.241375 22.207031 24.234375 L 24 9 L 6 9 z"></path>
-         </svg>']
-            );
-        }
-
-             if($TableLayout->hasField("status")){
-                $permission = $this->hasPermission("edit",static::$module,false);
-
-                $TableLayout->setField("status",["class"=>ChangeStatusComponent::class,"config"=>["url"=>"",
-                "beforeRender"=>function($component)use($permission){
-                    if($permission){
-                        $data = $component->getData();
-                        $component->setConfig("url",$this->action("changeStatus",[$data["row"]->{$this->uniqueKey}]));
-                    }
-                    else{
-                        $component->setConfig("url","javascript:;");
-                    }
-                }]]);
-
-              }
-
-
-
-        if(count($components)>0){
-            $TableLayout->addField("actions",["class"=>MultiComponent::class,"config"=>["components"=> $components]]);
-        }
+        $this->viewFields($TableLayout);
         if($TableLayout->isPost()){
             return $TableLayout->sendJson();
         }

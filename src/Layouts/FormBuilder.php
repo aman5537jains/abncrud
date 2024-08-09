@@ -112,7 +112,7 @@ class FormBuilder  extends OneRowLayout
     function validate(){
         $this->build();
 
-        return Validator::make($this->getValue(),$this->validations());
+        return Validator::make($this->getValue(),$this->validations(),$this->validationMessages());
     }
     function reset(){
         foreach($this->getFields() as $k=>$value){
@@ -158,6 +158,21 @@ class FormBuilder  extends OneRowLayout
                     $allRule+=  $value->validations();
                 }else{
                     $allRule[$value->getConfig("name")] =  $value->validations();
+                }
+            }
+        }
+
+         return $allRule;
+    }
+    function validationMessages()
+    {
+        $allRule=[];
+        foreach($this->getFields() as $field=>$value){
+            if($value instanceof FormComponent || $value instanceof FormBuilder) {
+                if($value instanceof FormBuilder){
+                    $allRule+=  $value->validationMessages();
+                }else{
+                    $allRule+=  $value->validationMessages();
                 }
             }
         }

@@ -47,15 +47,15 @@ abstract class FormComponent extends Component{
       return $this->__validations->isRequired()?  "<span class='mandatory'>*</span>":"";
 
     }
-    function setValidations($validations){
-        $this->__validations = new InputValidations($validations);
+    function setValidations($validations,$messages=[]){
+        $this->__validations = new InputValidations($validations,$messages);
     }
 
 
     function setDefaultConfig($config)
     {
         parent::setDefaultConfig($config);
-        $this->setValidations($this->getConfig("validations",[]));
+        $this->setValidations($this->getConfig("validations",[]),$this->getConfig("validation_messages",[]));
 
 
         $value =   request()->get($this->getConfig("name",""),"");
@@ -114,8 +114,10 @@ abstract class FormComponent extends Component{
 class InputValidations{
     public $validations=[];
     public $isRequired=false;
-    function __construct($validations)
+    public $messages=[];
+    function __construct($validations,$messages)
     {
+        $this->messages= $messages;
         // $this->validations = $validations;
         $this->process($validations);
 
