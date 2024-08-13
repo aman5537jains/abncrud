@@ -7,17 +7,29 @@ use Aman5537jains\AbnCmsCRUD\ViewComponent;
 
 class MultiComponent extends ViewComponent{
 
+    public $components=[];
 
+    public function init(){
+        parent::init();
+        $this->components = $this->getConfig("components",[]);
+    }
 
-    function view(){
-        $rendered='';
-        $componenets = $this->getConfig("components",[]);
+    function renderComponents(){
+        $rendered = '';
+        foreach($this->components as $componenet){
 
-        foreach($componenets as $componenet){
-            $rendered.=$componenet->setValue($this->getValue())->setData($this->getData())->render();
+            $rendered.=$componenet->setValue($this->getValue())
+            ->setData($this->getData()
+            )->render();
         }
 
         return $rendered;
     }
+
+    function view(){
+        return $this->renderComponents();
+    }
+
+
 
 }

@@ -96,8 +96,15 @@ class SelectComponent extends FormComponent{
                             success: function (data) {
                                     $(that)
                                     for(key in data){
-                                        var option = $('<option selected>'+data[key]+'</option>').val(key);
-                                        $(that).append(option)
+                                       
+                                        if(values.find((vals)=> vals+'' == key+'') > -1){
+                                            var option = $('<option selected >'+data[key]+'</option>').val(key);
+                                            $(that).append(option)
+                                        }
+                                        else{
+                                         var option = $('<option >'+data[key]+'</option>').val(key);
+                                          $(that).append(option)
+                                        }
                                     }
                                     $(that).trigger('change');
                             },
