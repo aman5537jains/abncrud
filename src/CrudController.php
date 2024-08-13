@@ -266,42 +266,7 @@ class CrudController extends Controller
     }
     public function viewFields($builder){
         $arr=[];
-        $view_columns = (config("crud.view_fields"));
-        $model =$this->getModel();
-        $columns=  $this->describeTable((new $model)->getTable());
-        foreach($columns as $key=>$col){
-            $column = $col->Field;
-            if($col->Extra!="auto_increment" && $col->Field!="updated_at" && $col->Field!="created_at" )
-            {
-                $class = TextComponent::class;
-                $option=["validations"=>["required"]];
 
-                $arr[$column]=["class"=>$class,"config"=>$option];
-                if(isset($view_columns[$column])){
-                    $arr[$column]=$view_columns[$column];
-                }
-
-                if($column=="status" && $this->hasPermission("edit",static::$module,false)){
-
-                  $arr[$column]=["class"=>ChangeStatusComponent::class,"config"=>["url"=>"",
-                    "beforeRender"=>function($component){
-                        $data = $component->getData();
-                        $component->setConfig("url",$this->action("changeStatus",[$data["row"]->{$this->uniqueKey}]));
-                    }]];
-                }
-                else{
-                    $arr[$column]=["class"=>TextComponent::class];
-                }
-                if (strpos($column, "image") !== false) {
-                    $arr[$column]=["class"=>ImageComponent::class,"config"=>$option];
-                }
-                if (strpos($column, "thumb") !== false) {
-                    $arr[$column]=["class"=>ImageComponent::class,"config"=>["height"=>50,"width"=>"50"]];
-                }
-
-
-            }
-        }
         $components = [];
         if($this->hasPermission("edit",static::$module,false)){
             $components[]= new LinkComponent(["name"=>"edit","link"=>"", "beforeRender"=>function($component){
@@ -413,7 +378,7 @@ class CrudController extends Controller
     public function viewBuilder($model){
 
         $this->layouts["table"] = $TableLayout =  (new TableLayout(["searchUrl"=>$this->action("index"),
-                "autoBuild"=>false,"search"=>function($model,$q){
+                "autoBuild"=>true,"search"=>function($model,$q){
             return $this->search($model,$q);
         }],$this));
         $TableLayout->setModel($model);
