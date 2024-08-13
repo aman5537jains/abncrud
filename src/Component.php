@@ -8,6 +8,7 @@ abstract class Component{
     public $config;
     public $value;
     public $data;
+    public $componentInlineScript;
     public $controller;
     public $view;
     public $js='';
@@ -321,14 +322,14 @@ abstract class Component{
             // else
             // $jsOnce = "<script>crudBuilderJS.register(\"$cName\",".$this->registerJsComponent().",'$componentID');</script>";
             CrudService::registerJs($this->componentName(),$js.$jsOnce ."". $this->js(),$JSALPINE,$componentID);
-
+            $this->componentInlineScript = $scripFnName;
             // $scripFnName='';
             // if($this->scriptFunctionName()!=''){
 
                  // }
 
 
-            $this->view =  $this->parentContainer($this->view(),$scripFnName);
+            $this->view =  $this->parentContainer($this->view(),$this->componentInlineScript);
 
             $init = $this->getConfig("afterRender",null);
             if($init){

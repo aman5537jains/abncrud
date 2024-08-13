@@ -78,7 +78,8 @@ abstract class FormComponent extends Component{
         return $model;
     }
 
-    function view(){
+    function parentContainer($view, $jsComponent)
+    {
 
         $class          = $this->getConfig("parentClass","dForm-group");
         $labelClass     = $this->getConfig("label-class","dForm-label");
@@ -92,16 +93,19 @@ abstract class FormComponent extends Component{
         // }
         $input          = $this->buildInput($attributes["name"],$this->getAttributes());
         if($this->getConfig("showLabel",true)){
-            return '<div class="'.$class.'">
+            return '<div  '.$jsComponent.' class="'.$class.'">
             <label class="'.$labelClass.'">'.$this->getLabel().' '.$this->requiredSpan().'</label>
                 '.$input.'
             </div>';
         }
         else{
-            return '<div class="'.$class.'">
+            return '<div '.$jsComponent.'  class="'.$class.'">
                 '.$input.'
             </div>';
         }
+    }
+    function view(){
+        return '';
 
 
     }
