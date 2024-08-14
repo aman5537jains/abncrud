@@ -16,6 +16,7 @@ class MultiComponent extends ViewComponent{
 
     function renderComponents(){
         $rendered = '';
+        $this->components = $this->getConfig("components",[]);
         foreach($this->components as $componenet){
 
             $rendered.=$componenet->setValue($this->getValue())
