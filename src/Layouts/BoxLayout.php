@@ -4,7 +4,7 @@ namespace Aman5537jains\AbnCmsCRUD\Layouts;
 
 use Aman5537jains\AbnCmsCRUD\Layout;
 
-class BoxLayout  extends Layout
+class BoxLayout  extends TableLayout
 {
   function view(){
         $rows = $this->getValue();
