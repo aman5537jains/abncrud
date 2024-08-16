@@ -3,6 +3,7 @@
 namespace Aman5537jains\AbnCmsCRUD\Components;
 
 use Aman5537jains\AbnCmsCRUD\FormComponent;
+use Aman5537jains\AbnCmsCRUD\Lib\Form;
 
 class SelectComponent extends FormComponent{
 
@@ -96,7 +97,7 @@ class SelectComponent extends FormComponent{
                             success: function (data) {
                                     $(that)
                                     for(key in data){
-                                       
+
                                         if(values.find((vals)=> vals+'' == key+'') > -1){
                                             var option = $('<option selected >'+data[key]+'</option>').val(key);
                                             $(that).append(option)
@@ -141,7 +142,6 @@ class SelectComponent extends FormComponent{
         $select2    = $this->getConfig("select2",true);
 
         $attrs['class'] .=  ($select2?" searchbleselect":"");
-
         $placeholder = $this->getConfig("placeholder",$this->getConfig("label",""));
         $optionattr  = $this->getConfig("options-attr",[]);
         $attrs['data-values']  =  json_encode($this->getValue()) ;
@@ -149,8 +149,48 @@ class SelectComponent extends FormComponent{
             unset($attrs["placeholder"]);
             $attrs  =  $attrs + ["data-placeholder"=>$placeholder];
         }
+        $optionattr  = $this->getConfig("options-attr",[]);
+            $values = [$this->getValue()];
+            if($this->getConfig("multiple",false)){
+                unset($attrs["placeholder"]);
 
-        return  \Form::select($name,$options,$this->getValue(), $attrs,$optionattr);
+                $attrs  =  $attrs + ["data-placeholder"=>$placeholder];
+
+                $values = $this->getValue();
+
+            }
+            $str='';
+
+            foreach($attrs as $a=>$v){
+                if(!is_array($v))
+                 $str .="$a=\"$v\"";
+            }
+
+            $select  = "<select $str name=\"$name\"    >";
+            $select.="<option   value=''>Select</option>";
+
+            foreach($options as $key=>$option){
+
+                $stro="";
+                if(isset($optionattr[$key])){
+                        foreach($optionattr[$key] as $atr_name=>$val){
+                            $stro .= "$atr_name='$val'";
+                        }
+
+                }
+                if(!empty($values))
+                    $selected = in_array($key,$values)?"selected":"";
+                else
+                    $selected ='';
+
+                $select.="<option $selected $stro value='$key'>$option</option>";
+            }
+
+            $select.='</select>';
+            // $optionattr
+            $input=$select;
+
+        return $select;// Form::select($name,$options,$this->getValue(), $attrs,$optionattr);
 
     }
 

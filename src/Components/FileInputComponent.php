@@ -4,7 +4,7 @@ namespace Aman5537jains\AbnCmsCRUD\Components;
 
 use Intervention\Image\Facades\Image;
 use Aman5537jains\AbnCmsCRUD\FormComponent;
-
+use Aman5537jains\AbnCmsCRUD\Lib\Form;
 
 class FileInputComponent extends FormComponent{
 
@@ -244,7 +244,7 @@ class FileInputComponent extends FormComponent{
 
         $prv.="<input type='hidden' name='removed_files' class='removed_files' />";
         $image =  '<div class="img-preview-container"></div> ';
-        return \Form::file($name, $attrs).$prv.$image;
+        return Form::file($name, $attrs).$prv.$image;
 
     }
 

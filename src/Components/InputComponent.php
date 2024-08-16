@@ -2,6 +2,7 @@
 
 namespace Aman5537jains\AbnCmsCRUD\Components;
 
+use Aman5537jains\AbnCmsCRUD\Lib\Form;
 use Aman5537jains\AbnCmsCRUD\FormComponent;
 class InputComponent extends FormComponent{
 
@@ -46,24 +47,24 @@ class InputComponent extends FormComponent{
         $placeholder = $this->getConfig("placeholder",$this->getConfig("label",""));
 
         if($type=="textarea"){
-            $input= \Form::textarea($name,$this->getValue(),$attrs);
+            $input= Form::textarea($name,$this->getValue(),$attrs);
         }
         else if($type=="password"){
-            $input= \Form::password($name,$attrs);
+            $input= Form::password($name,$attrs);
         }
         else if($type=="email"){
-            $input= \Form::email($name,$this->getValue(),$attrs);
+            $input= Form::email($name,$this->getValue(),$attrs);
         }
 
         else if($type=="number"){
-            $input= \Form::number($name,$this->getValue(),$attrs);
+            $input= Form::number($name,$this->getValue(),$attrs);
         }
         else if($type=="date"){
-            $input= \Form::date($name,$this->getValue(), $attrs);
+            $input= Form::date($name,$this->getValue(), $attrs);
         }
         else if($type=="datetime"){
 
-            $input= \Form::datetimeLocal($name,$this->getValue(), $attrs);
+            $input= Form::datetimeLocal($name,$this->getValue(), $attrs);
         }
         else if($type=="select"){
             // $attr = $this->getConfig("attr",[]);
@@ -72,13 +73,16 @@ class InputComponent extends FormComponent{
             $values = [$this->getValue()];
             if($this->getConfig("multiple",false)){
                 unset($attrs["placeholder"]);
+
                 $attrs  =  $attrs + ["data-placeholder"=>$placeholder];
 
                 $values = $this->getValue();
 
             }
             $str='';
+
             foreach($attrs as $a=>$v){
+                if(!is_array($v))
                  $str .="$a=\"$v\"";
             }
 
@@ -104,27 +108,27 @@ class InputComponent extends FormComponent{
 
             $select.='</select>';
             // $optionattr
-            $input=$select;//\Form::select($name,$options,$this->getValue(), $attrs);
+            $input=$select;//Form::select($name,$options,$this->getValue(), $attrs);
         }
         else if($type=="radio"){
             $radio ="";
             foreach($options as $k=>$option)
-            $radio  .=  \Form::radio($name,$k, false,$attrs) . " $option";
+            $radio  .=  Form::radio($name,$k, false,$attrs) . " $option";
             $input= $radio;
         }
         else if($type=="color"){
 
-            $input =\Form::color($name,$this->getValue(), $attrs);
+            $input =Form::color($name,$this->getValue(), $attrs);
         }
         else if($type=="hidden"){
             $this->setConfig("showLabel",false);
             $attrs['data-config']=$this->getValue();
-            $input =\Form::hidden($name,$this->getValue(), $attrs);
+            $input =Form::hidden($name,$this->getValue(), $attrs);
         }
 
         else{
 
-            $input =\Form::text($name,$this->getValue(), $attrs);
+            $input =Form::text($name,$this->getValue(), $attrs);
         }
         return $input;
 

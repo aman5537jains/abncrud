@@ -92,6 +92,7 @@ abstract class FormComponent extends Component{
 
         // }
         $input          = $this->buildInput($attributes["name"],$this->getAttributes());
+
         if($this->getConfig("showLabel",true)){
             return '<div  '.$jsComponent.' class="'.$class.'">
             <label class="'.$labelClass.'">'.$this->getLabel().' '.$this->requiredSpan().'</label>
