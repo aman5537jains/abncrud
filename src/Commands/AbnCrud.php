@@ -71,7 +71,12 @@ class AbnCrud extends Command
         );
 
         File::ensureDirectoryExists(dirname($controllerPath));
-        File::put($controllerPath, $stub);
+       
+        if (!File::exists($controllerPath)) {
+            File::put($controllerPath, $stub);
+        } else {
+            $this->warn("⚠️ Controller already exists: {$controllerPath}");
+        }
 
         $this->info("✅ Model created at: {$modelPath}");
         $this->info("✅ Controller created at: {$controllerPath}");
