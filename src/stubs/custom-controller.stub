@@ -1,0 +1,32 @@
+<?php
+
+namespace {{namespace}};
+use App\Models\{{modelName}};
+use App\Lib\CRUD\CrudController;
+
+class {{modelName}}Controller extends CrudController
+{
+    public static $module = "{{moduleSlug}}";
+    public static $moduleTitle = "{{moduleTitle}}";
+    public $uniqueKey="id";
+
+    function hasPermission($action, $module = "", $redirect = true)
+    {
+        return true;
+    }
+
+    function getModel(){
+        return {{modelName}}::class;
+    }
+
+    function formBuilder($model = null){
+        $form = parent::formBuilder($model);
+        return $form;
+    }
+
+    function viewBuilder($model)
+    {
+        $view = parent::viewBuilder($model);
+        return $view;
+    }
+}

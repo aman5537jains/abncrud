@@ -1,6 +1,6 @@
 @if($component->getConfig('form',true))
 
-<form class="validate form-horizontal form-form"  role="form" method="{{$component->getConfig('method','POST')}}" action="{{$component->getConfig('action','')}}" enctype = "multipart/form-data" id="formAddCuisine">
+<form   {!!  $component->getConfig('onsubmit',"")  !!} role="form" method="{{$component->getConfig('method','POST')}}" action="{{$component->getConfig('action','')}}" enctype = "multipart/form-data" id="{{ $component->getConfig('name',"default-form") }}"   {!!  $component->getAttributesString('onsubmit',"")  !!}>
  @endif
    @if($component->getConfig('method','POST')=="POST" && $component->getConfig('form',true))
     {{ csrf_field() }}

@@ -4,7 +4,7 @@ namespace Aman5537jains\AbnCmsCRUD;
 
 
 use Illuminate\Support\ServiceProvider;
-
+use Aman5537jains\AbnCmsCRUD\Commands\AbnCrud;
 class AbnCmsCRUDServiceProvider extends ServiceProvider
 {
     /**
@@ -17,6 +17,7 @@ class AbnCmsCRUDServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/crud.php' => config_path('crud.php'),
         ],'config');
+        
         // $this->loadRoutesFrom(__DIR__.'/routes/web.php');
         // $this->loadMigrationsFrom(__DIR__.'/migrations');
         $this->loadViewsFrom(__DIR__.'/views', 'AbnCmsCrud');
@@ -45,6 +46,9 @@ class AbnCmsCRUDServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->commands([
+            AbnCrud::class,
+        ]);
         // $this->mergeConfigFrom(
         //     __DIR__.'/abncms.php',
         //     'abncms'
