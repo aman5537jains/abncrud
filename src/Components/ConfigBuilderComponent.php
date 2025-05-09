@@ -1,10 +1,8 @@
 <?php
-
 namespace Aman5537jains\AbnCmsCRUD\Components;
 
 use Aman5537jains\AbnCmsCRUD\FormComponent;
 use Aman5537jains\AbnCmsCRUD\Layouts\FormBuilder;
-use Aman5537jains\AbnCmsCRUD\ViewComponent;
 
 class ConfigBuilderComponent extends FormComponent{
     private $formBuilder;

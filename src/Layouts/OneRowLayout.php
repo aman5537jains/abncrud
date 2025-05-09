@@ -12,7 +12,6 @@ class OneRowLayout  extends Layout
     function init(){
         $this->setLayout("one");
         $this->setValue([]);
-
     }
 
     function setValue($value)

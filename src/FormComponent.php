@@ -2,9 +2,12 @@
 
 namespace Aman5537jains\AbnCmsCRUD;
 
+
+
+use Aman5537jains\AbnCmsCRUD\Traits\AjaxAttributes;
 use Illuminate\Support\Facades\Validator;
 abstract class FormComponent extends Component{
-
+    use AjaxAttributes;
     private $__validations;
     private $__clasess='';
 
@@ -12,11 +15,22 @@ abstract class FormComponent extends Component{
         $name           = $this->getConfig("name");
         $id             = $this->getConfig("id",$name);
         $validations    = $this->validator();
-        $required       = $validations->isRequired();
+        $required       = $validations->isRequired()?['required'=>true]:[];
+       
         $inputClass     = $this->getConfig("input-class","dForm-control")." ".$this->__clasess;
         $placeholder    = $this->getConfig("placeholder",$this->getConfig("label",""));
-        return  array_merge(['placeholder' => $placeholder, 'required'=>$required, 'class'=>$inputClass,"id"=>$id,"name"=>$name],$this->getConfig("attr",[]));
+        return $required+ ['placeholder' => $placeholder, 'class'=>$inputClass,"id"=>$id]+$this->getConfig("attr",[]);
     }
+    function getAttribute($name,$default=""){
+        $atrr = $this->getAttributes();
+        return isset($atrr[$name])?$atrr[$name]:$default;
+    }
+
+    function addClass($classes){
+        $this->__clasess.= $classes;
+        return $this;
+    }
+   
 
     function buildInput($name,$attrs){
         return  \Form::text($name,$this->getValue(), $attrs);;
@@ -27,6 +41,9 @@ abstract class FormComponent extends Component{
     }
     function validations(){
          return $this->__validations->getValidations();
+    }
+    function validationMessages(){
+        return $this->__validations->messages;
     }
     function validate(){
         $validator =  Validator::make([$this->getConfig("name","none")=>$this->getValue()],[$this->getConfig("name","none")=>$this->validations()]);
@@ -43,18 +60,19 @@ abstract class FormComponent extends Component{
 
 
     function requiredSpan(){
-
+      
       return $this->__validations->isRequired()?  "<span class='mandatory'>*</span>":"";
 
     }
     function setValidations($validations,$messages=[]){
-        $this->__validations = new InputValidations($validations,$messages);
+        $this->__validations = new LaravelInputValidations($validations,$messages);
+        return $this;
     }
 
 
     function setDefaultConfig($config)
     {
-        parent::setDefaultConfig($config);
+        parent::setDefaultConfig($config); 
         $this->setValidations($this->getConfig("validations",[]),$this->getConfig("validation_messages",[]));
 
 
@@ -78,35 +96,29 @@ abstract class FormComponent extends Component{
         return $model;
     }
 
-    function parentContainer($view, $jsComponent)
-    {
-
+    function view(){
+        $this->ajaxAttrSetup();
         $class          = $this->getConfig("parentClass","dForm-group");
         $labelClass     = $this->getConfig("label-class","dForm-label");
         $name           = $this->getConfig("name");
         $validations = $this->validations();
-        $attributes = $this->getAttributes();
 
 
         // if( ){
 
         // }
-        $input          = $this->buildInput($attributes["name"],$this->getAttributes());
-
+        $input          = $this->buildInput($name,$this->getAttributes());
         if($this->getConfig("showLabel",true)){
-            return '<div  '.$jsComponent.' class="'.$class.'">
+            return '<div class="'.$class.'">
             <label class="'.$labelClass.'">'.$this->getLabel().' '.$this->requiredSpan().'</label>
                 '.$input.'
             </div>';
         }
         else{
-            return '<div '.$jsComponent.'  class="'.$class.'">
+            return '<div class="'.$class.'">
                 '.$input.'
             </div>';
         }
-    }
-    function view(){
-        return '';
 
 
     }
@@ -116,14 +128,38 @@ abstract class FormComponent extends Component{
 
 }
 
-class InputValidations{
-    public $validations=[];
-    public $isRequired=false;
+class LaravelInputValidations{
+    public $validations;
     public $messages=[];
+    public $isRequired=false;
     function __construct($validations,$messages)
     {
-        $this->messages= $messages;
         // $this->validations = $validations;
+        $this->messages= $messages;
+        $this->validations=$validations;
+
+    }
+    function getValidations(){
+        return $this->validations;
+    }
+     function isRequired(){
+        $validator= Validator::make([], ["name"=>$this->validations]);
+        $ruleSet = $validator->getRules();
+        return in_array('required', $ruleSet['name']);
+         
+    }
+    function isValid(){
+        return isset($this->validations['required']);
+    }
+}
+class InputValidations{
+    public $validations=[];
+    public $messages=[];
+    public $isRequired=false;
+    function __construct($validations,$messages)
+    {
+        // $this->validations = $validations;
+        $this->messages= $messages;
         $this->process($validations);
 
     }
@@ -139,7 +175,7 @@ class InputValidations{
                 if($add){
                     $this->validations[$key]=$value;
                     if($value=="required"){
-                     $this->isRequired=true;
+                         $this->isRequired=true;
                     }
                 }
                 else{

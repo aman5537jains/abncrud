@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace Aman5537jains\AbnCmsCRUD\Components;
 
@@ -6,7 +6,7 @@ use Aman5537jains\AbnCmsCRUD\FormComponent;
 use Aman5537jains\AbnCmsCRUD\ViewComponent;
 
 class CaptchaLaravelComponent extends FormComponent{
-
+    
 
     function validations()
     {

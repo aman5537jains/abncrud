@@ -16,7 +16,8 @@ abstract class Layout extends Component{
     public $model;
     public $template;
 
-
+    
+    
     function defaultComponent(){
         return TextComponent::class;
     }
@@ -49,6 +50,9 @@ abstract class Layout extends Component{
             {
                 $value->setConfig("name",$name);
                 $value->setConfig("placeholder",$name);
+            }
+            if(!$value->controller){
+                $value->controller =$this;
             }
             $this->fields[$name]=$value;
 
@@ -241,7 +245,7 @@ abstract class Layout extends Component{
                 $view = $fn( (object)$this->getFields(), $this->getResults(),$this);
                 return $view;
              }
-            return view($this->getConfig("input-layout","AbnCmsCrud::crud.input-layout"),[
+            return view($this->getConfig("input-layout","crud.input-layout"),[
               "rows"     => $this->getResults(),
               "fields"   => $this->getFields(),
               "component"=> $this

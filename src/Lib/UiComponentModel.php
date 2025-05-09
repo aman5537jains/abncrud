@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace Aman5537jains\AbnCmsCRUD\Lib;
 
@@ -6,19 +6,19 @@ use Aman5537jains\AbnCmsCRUD\Components\InputComponent;
 use Aman5537jains\AbnCmsCRUD\Components\LinkComponent;
 use Aman5537jains\AbnCmsCRUD\Components\TextComponent;
 
-trait UiComponentModel
+trait UiComponentModel  
 {
 
     function uiComponents(){
-
+      
         return [
 
-
+            
                 // "title"=>[
                 //     "form"=>   (new InputComponent([],null)),
                 //     "view"=>   (new LinkComponent(["label"=>"View ".$title,"link"=>url("taxes/".$this->slug."/edit")],null))
                 // ]
-
+             
         ];
     }
     function getUiAttribute(){
@@ -44,9 +44,10 @@ trait UiComponentModel
             $component->setValue($attributes[$name]);
         }
         return $component;
-
+ 
      }
-
-
+    
+     
 
 }
+ 

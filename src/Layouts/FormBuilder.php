@@ -2,13 +2,17 @@
 
 namespace Aman5537jains\AbnCmsCRUD\Layouts;
 
-use Aman5537jains\AbnCmsCRUD\Components\InputComponent;
 use Aman5537jains\AbnCmsCRUD\Components\FileInputComponent;
+use Aman5537jains\AbnCmsCRUD\Components\InputComponent;
 use Aman5537jains\AbnCmsCRUD\Components\SubmitButtonComponent;
+use Aman5537jains\AbnCmsCRUD\FormComponent;
+use Aman5537jains\AbnCmsCRUD\Layout;
+use Aman5537jains\AbnCmsCRUD\Traits\AjaxAttributes;
 use Illuminate\Support\Facades\Validator;
-
 class FormBuilder  extends OneRowLayout
 {
+    use AjaxAttributes;
+
     public $template;
     public $values =[];
     public $formErrors =[];
@@ -16,12 +20,13 @@ class FormBuilder  extends OneRowLayout
 
     public function init(){
         parent::init();
-        $this->setConfig("input-layout","AbnCmsCrud::crud.form-input");
+        
+        $this->setConfig("input-layout","crud.form-input");
 
     }
     // function registerJsComponent(){
-    //     return "(component,config){
-
+    //     return "function(component,config){
+         
     //          initFormBuilder(component,config);
 
     //     }";
@@ -37,6 +42,7 @@ class FormBuilder  extends OneRowLayout
     }
 
     public function formFields($builder){
+        
         $arr=[];
         $model =    $this->getModel();
         $columns=  \DB::select("SHOW COLUMNS FROM ". (new $model)->getTable());
@@ -100,19 +106,27 @@ class FormBuilder  extends OneRowLayout
                 }
             }
         }
-        $arr['submit']=["class"=>SubmitButtonComponent::class,"config"=>["label"=>"Save","url"=>$this->getConfig("back_url","")]];
-        $model = $this->getModel();
-
+        $arr['submit']=["class"=>SubmitButtonComponent::class,"config"=>["label"=>$this->getConfig("save-title","Save2"),"url"=>$this->getConfig("back_url","")]];
         foreach($arr as $fldName=>$opt){
             $builder->addField($fldName,$opt);
         }
-        method_exists($model,'crudFormColumns')? $model::crudFormColumns($builder):[];
         return $arr;
    }
     function validate(){
         $this->build();
+ 
+          
+        $validator  = Validator::make($this->getValue(),$this->validations(),$this->validationMessages());
+        if(count($this->formErrors)>0)
+        {  $validator->after(function ($validator) {
+                foreach($this->formErrors as $name=>$message){
 
-        return Validator::make($this->getValue(),$this->validations(),$this->validationMessages());
+                    $validator->errors()->add($name, $message);
+
+                }
+            });
+        }
+        return $validator;
     }
     function reset(){
         foreach($this->getFields() as $k=>$value){
@@ -153,11 +167,11 @@ class FormBuilder  extends OneRowLayout
     {
         $allRule=[];
         foreach($this->getFields() as $field=>$value){
-            if($value instanceof \Aman5537jains\AbnCmsCRUD\FormComponent || $value instanceof \Aman5537jains\AbnCmsCRUD\Layouts\FormBuilder) {
-                if($value instanceof \Aman5537jains\AbnCmsCRUD\Layouts\FormBuilder){
+            if($value instanceof FormComponent || $value instanceof FormBuilder) {
+                if($value instanceof FormBuilder){
                     $allRule+=  $value->validations();
                 }else{
-                    $allRule[$value->getConfig("name")] =  $value->validations();
+                    $allRule[$field] =  $value->validations();
                 }
             }
         }
@@ -172,7 +186,10 @@ class FormBuilder  extends OneRowLayout
                 if($value instanceof FormBuilder){
                     $allRule+=  $value->validationMessages();
                 }else{
-                    $allRule+=  $value->validationMessages();
+                    foreach($value->validationMessages() as $key=>$msg){
+                        $allRule[$field.".".$key] =  $msg;
+                    }
+                   
                 }
             }
         }
@@ -190,44 +207,30 @@ class FormBuilder  extends OneRowLayout
         return $this;
 
     }
-    function validateAndSave($inputs){
+    function addErrorBag($errors){
+        foreach($errors->messages()->get('*')  as $name=>$message){
+            $this->formErrors[$name]= $message; 
+        }
+         
+        return $this;
 
+    }
+    function validateAndSave($inputs){
+ 
             $this->setValue($inputs);
 
             $validator = $this->validate();
-
-            if(count($this->formErrors)>0)
-            {  $validator->after(function ($validator) {
-                    foreach($this->formErrors as $name=>$message){
-
-                        $validator->errors()->add($name, $message);
-
-                    }
-                });
-            }
+            
+           
 
             if ($validator->fails())
             {
-                if($this->getConfig("ajax",false)){
-                    return response()
-                    ->json(["status"=>false,"message"=>"There are some errors in the form","errors"=>$validator->errors()],400);
-
-                }
-                else{
-                    return (object)["status"=>false,"data"=>$validator->errors(),"message"=> "There are some errors in the form"];
-                }
+                return (object)["status"=>false,"data"=>$validator->errors(),"message"=> "There are some errors in the form"];
             }
             else
             {
-
-                if($this->getConfig("ajax",false)){
-
-                    return response()->json(["status"=>true,"data"=>$this->save(),"message"=>"Record Saved Successfully"]);
-
-                }
-                else{
-                    return  (object)["status"=>true,"data"=>$this->save(),"message"=> "Record Saved Successfully"];
-                }
+                return (object)["status"=>true,"data"=>$this->save(),"message"=>"Record Saved Successfully"];
+                
 
 
             }
@@ -244,7 +247,7 @@ class FormBuilder  extends OneRowLayout
 
                 $model= $this->onSaveModel($this->getModel());
                 $model = $this->beforeSave($this,$model);
-
+               
                 $model->save();
                 $realtions = $model->getRelations();
 
@@ -281,9 +284,8 @@ class FormBuilder  extends OneRowLayout
 
         foreach($this->getFields() as $key=>$value){
 
-            if($value instanceof \Aman5537jains\AbnCmsCRUD\FormComponent || $value instanceof \Aman5537jains\AbnCmsCRUD\Layouts\FormBuilder) {
+            if($value instanceof  FormComponent || $value instanceof FormBuilder) {
                 $model = $value->onSaveModel($model);
-
             }
         }
 
@@ -293,90 +295,163 @@ class FormBuilder  extends OneRowLayout
             return InputComponent::class;
     }
 
+    function validateAjax(){
 
+    }
     function js(){
-
-        return <<<script
-                 <script>
-                 function initFormBuilder(component,config){
-                    console.log("formmmmmmmm",component,config);
-                    let that = $(component).find(".form-builder-forms form")[0];
-                    let formParent = $(component);
-
-                    if(!config.ajax){
-                        return false;
-                    }
-                    $(that).on("submit",function(e){
-                        e.preventDefault();
-
-                        let form =$(this);
-                        console.log('form',form);
-                        if( $(that).valid()){
-
-                            var formData = new FormData(that);
-                            console.log('formData',formData);
-                            let action = $(that).attr("action");
-                            let method = $(that).attr("method");
-                            $.ajax({
-                                url:  action,
-                                type: method,
-                                data: formData,
-                                cache: false,
-                            processData: false,
-                            contentType: false,
-                                success: function (data) {
-                                    formParent.find(".form-builder-err").remove();
-                                    // form.trigger("reset");
-                                    form.find(".loader").hide();
-                                    form.find(".form-buttons").show();
-                                    // if(config.back_url){
-                                    //     window.location = config.back_url;
-                                    // }
-                                    // else{
-                                    //     alert(data.message);
-                                    //
-
-                                    // }
-                                    if(config.onSuccess){
-                                        const fnString = config.onSuccess;
-                                        const fn = eval(fnString);
-                                        fn(config,data);
-                                        //  let successFn = new Function("config","data",config.onSuccess);
-                                        //  successFn(config,data);
+         
+            return <<<script
+                <script>
+                function showErrors(xhr,event){
+                      if (xhr.status === 422) {
+                                     $("label.error").remove();
+                                        $("span.error").remove();
+                                        $.each(xhr.responseJSON.data, function(key, value) {
+                                            let inputField = $('[data-validation-key="' + key + '"]');
+                                            if(inputField.length<=0){
+                                             inputField = $('[name="' + key + '"]');
+                                            }
+                                             inputField.after('<span class="text-danger error dynamic-error">' + value[0] + '</span>');
+                                        });
+                                       
                                     }
-                                    form.after("<span class='success form-builder-err'> "+data.message+"</span>");
-
-                                },
-                                error:function(data){
-                                    console.log('form',form);
-                                    formParent.find(".form-builder-err").remove();
-                                    form.find(".loader").hide();
-                                    form.find(".form-buttons").show();
-
-                                    form.after("<span class='error form-builder-err'> "+data.responseJSON.message+"</span>");
-                                    for(name in data.responseJSON.errors){
-                                        if(form.find("[name="+name+"]").length<=0){
-                                            form.before("<span class='error form-builder-err'> "+data.responseJSON.errors[name]+"</span>");
-                                        }
-                                        else{
-                                            form.find("[name="+name+"]").after("<span class='error form-builder-err'> "+data.responseJSON.errors[name]+"</span>");
-                                        }
+                                    else{
+                                        alert("ERROR");
                                     }
-                                    if(config.onError){
-                                        config.onError(data);
-                                    }
-
-                                },
-                                cache: false,
-                                contentType: false,
-                                processData: false
-                            });
-                        }
-                    })
+                                    $(event).find(".loader").hide();
+                                     $(event).find(".form-buttons").show();    
+                                     $(event).find('button[type=\"submit\"], input[type=\"submit\"]').html('Save')
                 }
+                                     </script>
+            script;
+    //     $ajax = $this->getConfig("ajax",false);
+    //     return <<<script
+    //              <script>
+    //              function validateForm(that,stop=false){
+                        
+    //                   var formData = new FormData(that);
+                       
+    //                    $.ajax({
+    //                             url:  $(that).attr("action"),
+    //                             type: 'POST',
+    //                             data: formData,
+    //                             cache: false,
+    //                             processData: false,
+    //                             contentType: false,
+    //                                 headers: {
+    //                                 'Accept': 'application/json'
+    //                             },
+    //                             success: function (data) {
+    //                                 if(data.status){
+    //                                         window.location  =data.redirect
+    //                                 }
+    //                                 else{
+    //                                      alert(data.message);
+                                        
+    //                                 }
+    //                             },
+    //                              error:function(xhr){
+    //                                  if (xhr.status === 422) {
+    //                                  $("label.error").remove();
+    //                                     $("span.error").remove();
+    //                                     $.each(xhr.responseJSON.data, function(key, value) {
+    //                                         let inputField = $('[data-validation-key="' + key + '"]');
+    //                                         if(inputField.length<=0){
+    //                                          inputField = $('[name="' + key + '"]');
+    //                                         }
+    //                                          inputField.after('<span class="text-danger error dynamic-error">' + value[0] + '</span>');
+    //                                     });
+                                       
+    //                                 }
+    //                                     else{
+    //                                         alert("ERROR");
+    //                                         }
+    //                                     $(that).find(".loader").hide();
+    //                                     $(that).find(".form-buttons").show();
 
-                </script>
-        script;
+    //                              }})
+                        
+    //                     return stop;
+    //              }
+    //              function initFormBuilder(component,config){
+    //                 console.log("formmmmmmmm",component,config);
+    //                 let that = $(component).find(".form-builder-forms form")[0];
+    //                 let formParent = $(component);
+
+    //                 if(!config.ajax){
+    //                     return false;
+    //                 }
+    //                 $(that).on("submit",function(e){
+    //                     e.preventDefault();
+
+    //                     let form =$(this);
+    //                     console.log('form',form);
+    //                     if( $(that).valid()){
+
+    //                         var formData = new FormData(that);
+    //                         console.log('formData',formData);
+    //                         let action = $(that).attr("action");
+    //                         let method = $(that).attr("method");
+    //                         $.ajax({
+    //                             url:  action,
+    //                             type: method,
+    //                             data: formData,
+    //                             cache: false,
+    //                         processData: false,
+    //                         contentType: false,
+    //                             success: function (data) {
+    //                                 formParent.find(".form-builder-err").remove();
+    //                                 // form.trigger("reset");
+    //                                 form.find(".loader").hide();
+    //                                 form.find(".form-buttons").show();
+    //                                 // if(config.back_url){
+    //                                 //     window.location = config.back_url;
+    //                                 // }
+    //                                 // else{
+    //                                 //     alert(data.message);
+    //                                 //
+
+    //                                 // }
+    //                                 if(config.onSuccess){
+    //                                     const fnString = config.onSuccess;
+    //                                     const fn = eval(fnString);
+    //                                     fn(config,data);
+    //                                     //  let successFn = new Function("config","data",config.onSuccess);
+    //                                     //  successFn(config,data);
+    //                                 }
+    //                                 form.after("<span class='success form-builder-err'> "+data.message+"</span>");
+
+    //                             },
+    //                             error:function(data){
+    //                                 console.log('form',form);
+    //                                 formParent.find(".form-builder-err").remove();
+    //                                 form.find(".loader").hide();
+    //                                 form.find(".form-buttons").show();
+
+    //                                 form.after("<span class='error form-builder-err'> "+data.responseJSON.message+"</span>");
+    //                                 for(name in data.responseJSON.errors){
+    //                                     if(form.find("[name="+name+"]").length<=0){
+    //                                         form.before("<span class='error form-builder-err'> "+data.responseJSON.errors[name]+"</span>");
+    //                                     }
+    //                                     else{
+    //                                         form.find("[name="+name+"]").after("<span class='error form-builder-err'> "+data.responseJSON.errors[name]+"</span>");
+    //                                     }
+    //                                 }
+    //                                 if(config.onError){
+    //                                     config.onError(data);
+    //                                 }
+
+    //                             },
+    //                             cache: false,
+    //                             contentType: false,
+    //                             processData: false
+    //                         });
+    //                     }
+    //                 })
+    //             }
+
+    //             </script>
+    //     script;
     }
     function beforeRender($cmp){
 
@@ -384,12 +459,22 @@ class FormBuilder  extends OneRowLayout
     }
 
     function view(){
+        $this->setConfigs(["ajax"=>true,
+        "href"=>$this->getConfig("action"),
+        "payload"=>"return  new FormData(event);",
+        "onsuccess"=>"window.location  = response.redirect",
+        "onerror"=>"showErrors(response,event)",
+        "beforesend"=>"$(event).find('button[type=\"submit\"], input[type=\"submit\"]').html('Saving...')",
+        "method"=>"POST","ajaxEvent"=>"onsubmit"]);
+        $this->ajaxAttrSetup();
+        
         $uid=  $this->componentID();
 
-
-        return  '<div data-cid="'.$uid.'"  class ="form-builder-forms '.$uid.'" >'.view($this->getConfig("form-layout","AbnCmsCrud::crud.form-component"),
+        // $this->setConfig("onsubmit","onsubmit=\"return validateForm(this)\"");
+        return  '<div data-cid="'.$uid.'"  class ="form-builder-forms '.$uid.'" >'.view($this->getConfig("form-layout","crud.form-component"),
         ["fields"=>$this->inputLayout(), "component"=>$this]
         )->render() . '</div>';
     }
+
 
 }

@@ -1,8 +1,8 @@
 <?php
+
 namespace Aman5537jains\AbnCmsCRUD\Lib;
 use Illuminate\Support\Facades\Route;;
 use Illuminate\Support\Str;
-
 class RouteService
 {
     public $parentObject;
@@ -20,11 +20,12 @@ class RouteService
         Route::controller("\\".$this->parentObject->controllerClass)->prefix($this->parentObject->module)->name($this->parentObject->module.'.')->group(function () use($cb) {
 
             $cb($this);
-
+            
             Route::get('/changeStatus/{id}',"changeStatus")->name("changeStatus");
             Route::get('/{id}/delete',"delete")->name("delete");
+            
         });
-       
+
         Route::resource($this->parentObject->module, "\\".$this->parentObject->controllerClass);
     }
     static function resource($module,$class,$cb){
@@ -47,7 +48,4 @@ class RouteService
 
         return Route::$name($path,$action)->name($action);
     }
-
-
-
 }

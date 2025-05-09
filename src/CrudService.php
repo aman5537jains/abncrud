@@ -1,13 +1,10 @@
 <?php
 namespace Aman5537jains\AbnCmsCRUD;
-
-use Aman5537jains\AbnCmsCRUD\Components\ConfigBuilderComponent;
-use Aman5537jains\AbnCmsCRUD\Components\CounterAnimationComponent;
-use Aman5537jains\AbnDynamicContentPlugin\Components\DynamicFormComponent;
-use Aman5537jains\AbnDynamicContentPlugin\Components\DynamicViewComponent;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Aman5537jains\AbnCmsCRUD\Components\ConfigBuilderComponent;
+
 class CrudService{
     public  static $jsRegistered = false;
     public  static $allJs = [];
@@ -17,14 +14,18 @@ class CrudService{
         return config("crud.routes");
     }
 
-    public static  function registerJs($class,$js,$alpine,$id=''){
+    public static  function registerJs($class,$js,$once,$alpine,$id=''){
 
         if (is_string($class)){
-            self::$allJs[$class]=["js"=>$js,"alpine"=>$alpine];
+            if(isset(self::$allJs[$class])){
+                self::$allJs[$class]["js"].=$js;
+            }
+            else
+            self::$allJs[$class]=["js"=>$js,"once"=>$once,"alpine"=>$alpine];
             // self::$classIds[$class]=$js;
         }
         else
-        self::$allJs[get_class($class)]=["js"=>$js,"alpine"=>$alpine];;
+        self::$allJs[get_class($class)]=["js"=>$js,"once"=>$once,"alpine"=>$alpine];;
     }
 
     public static function js()
@@ -32,18 +33,120 @@ class CrudService{
         if(!CrudService::$jsRegistered)   {
             CrudService::$jsRegistered=true;
             $allJS ='';
+            $once = '<style>.crud-wrapper{display: contents}</style>';
             $alpins = '';
             foreach(self::$allJs as $js){
+                $once.=" \n " .$js["once"];
                 $allJS.=" \n " .$js["js"];
+                
                 $alpins.=" \n " .$js["alpine"];
+
             }
+            $loader = '<svg style="height:25px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><radialGradient id="a2" cx=".66" fx=".66" cy=".3125" fy=".3125" gradientTransform="scale(1.5)"><stop offset="0" stop-color="#FF156D"></stop><stop offset=".3" stop-color="#FF156D" stop-opacity=".9"></stop><stop offset=".6" stop-color="#FF156D" stop-opacity=".6"></stop><stop offset=".8" stop-color="#FF156D" stop-opacity=".3"></stop><stop offset="1" stop-color="#FF156D" stop-opacity="0"></stop></radialGradient><circle transform-origin="center" fill="none" stroke="url(#a2)" stroke-width="15" stroke-linecap="round" stroke-dasharray="200 1000" stroke-dashoffset="0" cx="100" cy="100" r="70"><animateTransform type="rotate" attributeName="transform" calcMode="spline" dur="2" values="360;0" keyTimes="0;1" keySplines="0 0 1 1" repeatCount="indefinite"></animateTransform></circle><circle transform-origin="center" fill="none" opacity=".2" stroke="#FF156D" stroke-width="15" stroke-linecap="round" cx="100" cy="100" r="70"></circle></svg>';
+            
             $alpins="<script>
+                window['crudBuilderJS']={alpines:{}};
+                $alpins
                 document.addEventListener('alpine:init', () => {
-                        $alpins
+                        
                 })
+                //  document.querySelectorAll('[oninit]').forEach((el) => {
+                //     const code = el.getAttribute('oninit');
+                //     if (code) {
+                //         try {
+                         
+                //         new Function('\$event', code)(el);
+                //         // el.removeAttribute('oninit');
+                //         } catch (e) {
+                //          console.error('oninit error:', e, 'in element:', el);
+                //         }
+                //     }
+                // });
+     document.addEventListener('DOMContentLoaded', function () {
+                const observer = new MutationObserver((mutationsList) => {
+                         document.querySelectorAll('[oninit]').forEach((el) => {
+                            const code = el.getAttribute('oninit');
+                              el.removeAttribute('oninit');
+                            if (code) {
+                                try {
+                                var fn =  new Function('\$event', code);
+                               
+                                fn(el)
+                                } catch (e) {
+                                console.error('oninit error:', e, 'in element:', el);
+                                }
+                            }
+                        });
+                   
+                    });
+                observer.observe(document.body, { childList: true, subtree: true });
+        });
+                function formData(obj){
+                    let form_data = new FormData();
+                    for ( var key in obj ) {
+                        form_data.append(key, obj[key]);
+                    }
+                    return form_data;
+                }
+                function runCrudAjax(event,e){
+                    event.preventDefault();
+                    if( $(e).attr('disabled')){
+                        return;
+                    }
+                    let fnPayload = function(e){ return {} }
+                   
+                    if($(e).data('payload'))
+                    {   
+                        fnPayload =  new Function('event','formData',$(e).data('payload'));
+                    }
+                    
+                   
+                    
+                     
+                    $.ajax({
+                            url:  $(e).data('href'),
+                            type: $(e).data('method') || 'GET',
+                            beforeSend:function(xhr){
+                                if($(e).data('beforesend'))
+                                {   
+                                   let fnBefore =  new Function('event',$(e).data('beforesend'));
+                                   fnBefore(e);
+                                }
+                                $(e).attr('disabled','true');
+                                $(e).parent().append('<div class=\"c_loader\">$loader</div>')
+                                
+                                 
+                            },
+                            data: fnPayload(e,formData),
+                            cache: false,
+                            processData: ($(e).data('method') || 'GET')=='GET'?true:false,
+                            contentType: false,
+                                headers: {
+                                'Accept': 'application/json'
+                            },
+                            success: function (response) {
+                                if($(e).data('onsuccess')){
+                                    let fn =  new Function('event','response',$(e).data('onsuccess'));
+                                    fn(e,response);
+                                }
+                            },
+                            complete:function(xhr,status){
+
+                                $(e).removeAttr('disabled');
+                                 $(e).parent().find('.c_loader').remove();  
+                            },  
+                            error:function(xhr){
+                                 if($(e).data('onerror')){
+                                    let fn =  new Function('event','response',$(e).data('onerror'));
+                                    fn(e,xhr);
+                                }
+                            }})
+
+                }
+                 
             </script>";
 
-            return $allJS.$alpins;
+            return $once.$allJS.$alpins;
         }
         return "";
     }
@@ -195,7 +298,7 @@ class CrudService{
             $comp = new $class(["name"=>request("name","name")]);
         }
         else{
-            $comp = new DynamicFormComponent(["name"=>request("name","name")]);
+            // $comp = new DynamicFormComponent(["name"=>request("name","name")]);
         }
 
         $configs  = $comp->defaultConfig();
