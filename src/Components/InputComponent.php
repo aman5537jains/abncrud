@@ -2,8 +2,8 @@
 
 namespace Aman5537jains\AbnCmsCRUD\Components;
 
+Aman5537jains\AbnCmsCRUD\FormComponent;
  
-use App\Lib\CRUD\FormComponent;
  
 class InputComponent extends FormComponent{
     
