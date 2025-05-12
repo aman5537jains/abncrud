@@ -171,12 +171,17 @@ class InputComponent extends FormComponent{
             $optionsFn  = $this->getConfig("options",function(){
                 return [];
             });
-            if(is_array($optionsFn)){
+            if(!is_callable($optionsFn)){
                 $options  = $optionsFn;
                 // $warning = "<span style='color:red'>deprecated use of options</span>";
             }
             else{
-                $options  = $optionsFn();
+                try{
+                   
+                 $options  = $optionsFn();
+                } catch(\Exception $e){
+                    dump($e);
+                }
             }
 
         }
