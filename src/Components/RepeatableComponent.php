@@ -21,7 +21,9 @@ class RepeatableComponent extends FormBuilder{
         if($this->getConfig("saveMethod","JSON")=="JSON"){
                 try{
                     
-                    $values =json_decode($values,true);
+                    if(is_string($values)){
+                        $values =json_decode($values,true);
+                    }
                 }
                 catch(\Exception $e){
                      
