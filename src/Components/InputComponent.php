@@ -2,8 +2,9 @@
 
 namespace Aman5537jains\AbnCmsCRUD\Components;
 
+ 
 use App\Lib\CRUD\FormComponent;
-use App\Lib\CRUD\Traits\AjaxAttributes;
+ 
 class InputComponent extends FormComponent{
     
      
