@@ -68,7 +68,12 @@ class TableLayout  extends Layout
     //   ];
     // dd($arr);
       foreach($arr as $fldName=>$opt){
+        try{
           $builder->addField($fldName,is_array($opt)?new $opt['class']($opt['config']):$opt);
+        }
+        catch(\Exception $e){
+            
+        }
       }
        
       return $arr;

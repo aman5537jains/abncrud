@@ -323,7 +323,7 @@ abstract class Component{
 
                 // $scripFnName = "<img style='display:none' id='$componentID' src onError='crudBuilderJS.call(\"$cName\",this.nextSibling,\"$jsConfig\",\"$componentID\")' />";
                 // $scripFnName = " x-data='$cNameTrimed($encodedExtended)' ";
-                $scripFnName = " oninit='$cNameTrimed(\$event)' ";
+                $scripFnName = " oninit=$cNameTrimed(\$event) ";
                
             }
             

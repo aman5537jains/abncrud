@@ -58,6 +58,8 @@ class InputComponent extends FormComponent{
         // if($this->getConfig("type")=="select")
         {
             return "function(component,config){ 
+            setTimeout(()=>{
+            
             let select = $(component).find('select');
             if(select && select.attr('onsearch')){
                  select.select2({
@@ -100,7 +102,7 @@ class InputComponent extends FormComponent{
                                 closeOnSelect: true,
                                 multiple:select.attr('multiple') ? true : false});
                             }
-                     
+                   },0)  
              }";
         }
          
