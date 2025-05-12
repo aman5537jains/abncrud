@@ -37,7 +37,7 @@ class TableLayout  extends Layout
           if($col->Extra!="auto_increment" && $col->Field!="updated_at" && $col->Field!="created_at" )
           {
               $class = TextComponent::class;
-              $option=["validations"=>["required"]];
+              $option=["validations"=>["required"],"name"=>$col->Field];
 
               $arr[$column]=["class"=>$class,"config"=>$option];
               if(isset($view_columns[$column])){
@@ -66,9 +66,11 @@ class TableLayout  extends Layout
     //                 "module"=>$this->getConfig("module",""),
     //                 "uniqueKey"=>$this->getConfig("uniqueKey","id"),"allowed"]
     //   ];
+    // dd($arr);
       foreach($arr as $fldName=>$opt){
-          $builder->addField($fldName,$opt);
+          $builder->addField($fldName,is_array($opt)?new $opt['class']($opt['config']):$opt);
       }
+       
       return $arr;
 
     }

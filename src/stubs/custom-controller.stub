@@ -2,7 +2,7 @@
 
 namespace {{namespace}};
 use App\Models\{{modelName}};
-use App\Lib\CRUD\CrudController;
+use Aman5537jains\AbnCmsCRUD\CrudController;
 
 class {{modelName}}Controller extends CrudController
 {

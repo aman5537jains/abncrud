@@ -202,23 +202,23 @@ class CrudController extends Controller
                 && $column->Field!="created_at"
             ){
                 $class = InputComponent::class;
-                $option=["validations"=>["required"]];
+                $option=["validations"=>["required"],"name"=>$column->Field];
                
                 if(substr( $column->Type, 0, 3 ) === "int")
                 {
                     $class = InputComponent::class;
-                    $option = ["type"=>"number","validations"=>["required"]];
+                    $option = ["type"=>"number","validations"=>["required"],"name"=>$column->Field];
                 }
                 else  if(substr( $column->Type, 0, 7 ) === "decimal")
                 {
                     $class = InputComponent::class;
-                    $option = ["type"=>"number","validations"=>["required"]];
+                    $option = ["type"=>"number","validations"=>["required"],"name"=>$column->Field];
                 }
                 else if(substr( $column->Type, 0, 7 ) === "varchar")
                 {
                     if( strpos($column->Field, "file") !== false){
                         $class = FileInputComponent::class;
-                        $option = ["validations"=>["required"]];
+                        $option = ["validations"=>["required"],"name"=>$column->Field];
                     }
                     else
                     $class = InputComponent::class;
@@ -231,35 +231,38 @@ class CrudController extends Controller
                     $enum = explode("','", $matches[1]);
 
 
-                    $option = ["type"=>"select","options"=>array_combine($enum, $enum),"validations"=>["required"]];
+                    $option = ["type"=>"select","name"=>$column->Field,"options"=>array_combine($enum, $enum),"validations"=>["required"]];
                 }
                 else if($column->Type === "date")
                 {
                     $class = InputComponent::class;
-                    $option = ["type"=>"date","validations"=>["required"]];
+                    $option = ["type"=>"date","name"=>$column->Field,"validations"=>["required"]];
                 }
                 else if($column->Type === "datetime")
                 {
                     $class = InputComponent::class;
-                    $option = ["type"=>"datetime","validations"=>["required"]];
+                    $option = ["type"=>"datetime","name"=>$column->Field,"validations"=>["required"]];
                 }
                 else if(substr( $column->Type, 0, 4 ) === "text")
                 {
                     $class = InputComponent::class;
-                    $option = ["type"=>"textarea","validations"=>["required"]];
+                    $option = ["type"=>"textarea","name"=>$column->Field,"validations"=>["required"]];
                 }
                 
                 $option["validations"]=$column->Null=="NO"?[$builder->getConfig("validate",true)?"required":""]:[];
-                $arr[$column->Field]=["class"=>$class,"config"=>$option];
+          
+                $arr[$column->Field]=new $class($option);// ["class"=>$class,"config"=>$option];
 
                 if(isset($formcolumns[$column->Field])){
                     $arr[$column->Field]=!is_callable($formcolumns[$column->Field])?$formcolumns[$column->Field]:$formcolumns[$column->Field]();
                 }
             }
         }
-        $arr['submit']=["class"=>SubmitButtonComponent::class,"config"=>["label"=>"Save","url"=>$this->action("index"),"saveDB"=>false]];
+        $arr['submit']=new SubmitButtonComponent( ["label"=>"Save","url"=>$this->action("index"),"saveDB"=>false]);
+      
         foreach($arr as $fldName=>$opt){
-            $builder->addField($fldName,$opt);
+
+            $builder->addField($fldName,is_array($opt)?(new $opt["class"]($opt["config"])):$opt);
         }
         //     // Field
         //     // Type
@@ -328,7 +331,7 @@ class CrudController extends Controller
             ]];
         }
         foreach($arr as $fldName=>$opt){
-            $builder->addField($fldName,$opt);
+            $builder->addField($fldName,new $opt['class']($opt["config"]));
         }
         return $arr;
 
@@ -462,7 +465,7 @@ class CrudController extends Controller
              if($TableLayout->hasField("status")){
                 $permission = $this->hasPermission("edit",static::$module,false);
 
-                $TableLayout->setField("status",["class"=>ChangeStatusComponent::class,"config"=>["url"=>"",
+                $TableLayout->setField("status",new ChangeStatusComponent(["name"=>"status","url"=>"",
                 "beforeRender"=>function($component)use($permission){
                     if($permission){
                         $data = $component->getData();
@@ -471,21 +474,29 @@ class CrudController extends Controller
                     else{
                         $component->setConfig("url","javascript:;");
                     }
-                }]]);
+                }]));
 
               }
 
 
 
         if(count($components)>0){
-            $TableLayout->addField("actions",["class"=>MultiComponent::class,"config"=>["components"=> $components]]);
+            $TableLayout->addField("actions",new MultiComponent(["name"=>"actions","components"=> $components]));
         }
         if($TableLayout->isPost()){
             return $TableLayout->sendJson();
         }
         return $TableLayout;
     }
-
+    public function liveUpdate($form){
+        $response =[];
+        // dd(request()->get("live_listners",[]));
+         foreach($form->getFields() as $key=>$field){
+            if(in_array($key,request()->get("live_listners",[])))
+            $response[$key]=$field->render();
+         }
+         return $response;
+    }
     public function index(Request $request,$slug=""){
 
             $this->hasPermission("view");
@@ -499,6 +510,9 @@ class CrudController extends Controller
         $form->setModel($model);
         // $form->addField("validateUrl",new HiddenComponent(["name"=>"validateUrl","value"=>$this->action("validateForm")]));
         $this->formFields($form);
+        // dd(array_merge($form->getModel()->toArray(),old()),);
+        $form =$form->setValue(array_merge($form->getModel()->toArray(),request()->all()));
+       
         return $form;
     }
 
@@ -506,8 +520,12 @@ class CrudController extends Controller
         if(!$this->canAdd())
             return  "Not allowed";
         $this->hasPermission("add");
-        return $this->view("form",["form"=>$this->formBuilder($this->getModelObject())
-        ->setConfig("action",$this->action("store"))]);
+        $form = $this->formBuilder($this->getModelObject())
+        ->setConfig("action",$this->action("store"));
+        if($request->expectsJson()){
+             return response()->json(["form"=>$this->liveUpdate($form)]);
+        }
+        return $this->view("form",["form"=>$form]);
     }
  
 
@@ -548,10 +566,9 @@ class CrudController extends Controller
         $model=$this->getModel();
         $form =$this->formBuilder($this->getModelObject()->where($this->uniqueKey,$slug)->first())
         ->setConfig("action",$this->action("update",[$slug]));
-        if($slug!=""){
-            
-            $form =$form->setValue(array_merge($form->getModel()->toArray(),old()));
-        }
+        if($request->expectsJson()){
+            return response()->json(["form"=>$this->liveUpdate($form)]);
+       }
 
        return $this->view("form",["form"=>$form]);
 

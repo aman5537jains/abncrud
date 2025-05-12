@@ -132,6 +132,8 @@ abstract class Layout extends Component{
         return $this;
     }
     function setField($field,$component){
+         
+        $component->setValue($this->getField($field)->getValue());
         return $this->addField($field,$component);
     }
     function setFields($fields){

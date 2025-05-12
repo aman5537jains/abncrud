@@ -26,9 +26,11 @@ class JsonComponent extends ViewComponent{
     }
     function parseJson($json){
         $text='';
+       
         foreach($json as $key=>$value){
-            if($key=="id")
-            continue;
+            if($key==="id"){
+                
+                continue;}
             if(is_string($value)){
                 $text .= "$key : $value <br>";
             }else{
@@ -36,6 +38,7 @@ class JsonComponent extends ViewComponent{
             }
           
         }
+        
         return $text ;
     }
     function view(){

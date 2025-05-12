@@ -88,7 +88,27 @@ class CrudService{
                     }
                     return form_data;
                 }
+                function liveUpdateForm(emitter,listners,form,extra={}){
+                 let formValues = Object.fromEntries((new FormData(form)).entries());
+                 
+                   return {...formValues,live_listners:listners,...extra} 
+                     
+                }
+                function liveUpdate(emitter,listners,form){
+                    for(lisner of listners){
+                        $('#'+lisner+'-container').replaceWith(form[lisner]);
+                    }
+                }
+                function debounce(func, delay) {
+                    let timer;
+                    return function (...args) {
+                        clearTimeout(timer);
+                        timer = setTimeout(() => func.apply(this, args), delay);
+                    };
+                }
                 function runCrudAjax(event,e){
+                
+                    if(event)
                     event.preventDefault();
                     if( $(e).attr('disabled')){
                         return;
@@ -96,28 +116,28 @@ class CrudService{
                     let fnPayload = function(e){ return {} }
                    
                     if($(e).data('payload'))
-                    {   
+                    {    
                         fnPayload =  new Function('event','formData',$(e).data('payload'));
                     }
+                    let payload = fnPayload(e,formData);
+                    console.log({payload:JSON.stringify(payload)})
                     
-                   
-                    
-                     
+                     if($(e).data('beforesend'))
+                                {   
+                                   let fnBefore =  new Function('event',$(e).data('beforesend'));
+                                   fnBefore(e);
+                    }
                     $.ajax({
                             url:  $(e).data('href'),
                             type: $(e).data('method') || 'GET',
                             beforeSend:function(xhr){
-                                if($(e).data('beforesend'))
-                                {   
-                                   let fnBefore =  new Function('event',$(e).data('beforesend'));
-                                   fnBefore(e);
-                                }
-                                $(e).attr('disabled','true');
+                                
+                                // $(e).attr('disabled','true');
                                 $(e).parent().append('<div class=\"c_loader\">$loader</div>')
                                 
                                  
                             },
-                            data: fnPayload(e,formData),
+                            data: payload,
                             cache: false,
                             processData: ($(e).data('method') || 'GET')=='GET'?true:false,
                             contentType: false,

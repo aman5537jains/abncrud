@@ -30,6 +30,7 @@ class FormArray  extends FormBuilder
        
         try{
             $values= is_string($values)?json_decode($values,true):$values;
+           
         }
         catch(\Exception $e){
 
