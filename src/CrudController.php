@@ -297,7 +297,7 @@ class CrudController extends Controller
 
                 if($column=="status" && $this->hasPermission("edit",static::$module,false)){
 
-                  $arr[$column]=["class"=>ChangeStatusComponent::class,"config"=>["url"=>"",
+                  $arr[$column]=["class"=>ChangeStatusComponent::class,"config"=>["name"=>$column,"url"=>"",
                     "beforeRender"=>function($component){
                         $data = $component->getData();
                         $component->setConfig("url",$this->action("changeStatus",[$data["row"]->{$this->uniqueKey}]));
