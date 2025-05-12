@@ -19,7 +19,7 @@ class InputComponent extends FormComponent{
     }
     function setConfig($name, $default = ''){
         $config=  parent::setConfig($name,$default);
-       
+         $this->enableLiveUpdateSupport($name, $default);
 
         return $config;
     }
@@ -107,11 +107,14 @@ class InputComponent extends FormComponent{
         }
          
     }
-    function setValue($value){
-        if($this->getConfig("type","text")=="file" && $value instanceof \Illuminate\Http\UploadedFile){
-            $value =  $value->store($this->getConfig("path","files"));
+    function onSaveModel($model){
+        if($this->getConfig("type","text")=="file"  ){
+            if($this->getValue() instanceof \Illuminate\Http\UploadedFile){
+             $model->{$this->getConfig("name","")} =    $this->getValue()->store($this->getConfig("path","files"));
+            }
+            return $model;
         }
-        return parent::setValue($value);
+        return parent::onSaveModel($model);
     }
     function getRelationalOptions(){
         $relation        = $this->getConfig("relation",false);
