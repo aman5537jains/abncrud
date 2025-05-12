@@ -178,7 +178,7 @@ class InputComponent extends FormComponent{
     }
     function buildInput($name,$attrs){
          
-        
+       
         $type           = $this->getConfig("type","text");
         $warning ='';
         if($this->getConfig("relation",false)){

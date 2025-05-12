@@ -19,7 +19,8 @@ abstract class FormComponent extends Component{
        
         $inputClass     = $this->getConfig("input-class","dForm-control")." ".$this->__clasess;
         $placeholder    = $this->getConfig("placeholder",$this->getConfig("label",""));
-        return $required+ ['placeholder' => $placeholder, 'class'=>$inputClass,"id"=>$id]+$this->getConfig("attr",[]);
+        return (array_merge(array_merge($required,['placeholder' => $placeholder, 'class'=>$inputClass,"id"=>$id]),$this->getConfig("attr",[])) );
+
     }
     function getAttribute($name,$default=""){
         $atrr = $this->getAttributes();
