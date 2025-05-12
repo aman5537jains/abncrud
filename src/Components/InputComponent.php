@@ -2,16 +2,32 @@
 
 namespace Aman5537jains\AbnCmsCRUD\Components;
 
-use Aman5537jains\AbnCmsCRUD\FormComponent;
-use Aman5537jains\AbnCmsCRUD\Traits\AjaxAttributes;
+use App\Lib\CRUD\FormComponent;
+use App\Lib\CRUD\Traits\AjaxAttributes;
 class InputComponent extends FormComponent{
     
      
+    function init(){
+        parent::init();
+        if($this->getConfig("live",false)){
+            $this->enableLiveUpdateSupport("live",$this->getConfig("live",false));
+        }
+        if($this->getConfig("livesearch",false)){
+            $this->enableLiveUpdateSupport("livesearch",$this->getConfig("livesearch",false));
+        }
+    }
     function setConfig($name, $default = ''){
         $config=  parent::setConfig($name,$default);
+       
+
+        return $config;
+    }
+
+    function enableLiveUpdateSupport($name,$default){
         if($name=="live"){
             $fn = $default;
             $fn($this);
+           
             $this->setConfig("ajax",true);
             $listiners = htmlspecialchars(json_encode($this->getConfig("listners",[])));
     
@@ -32,8 +48,6 @@ class InputComponent extends FormComponent{
         
             $this->setConfig("onsuccess"," $('#$inpname').html($(response.form['$inpname']).find('#$inpname').html()); $('#$inpname').trigger('change')");
         }
-
-        return $config;
     }
     function setupAjax($fn){
         
