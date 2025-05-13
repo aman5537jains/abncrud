@@ -186,6 +186,9 @@ class InputComponent extends FormComponent{
         if($this->getConfig("livesearch",false)){
             $this->enableLiveUpdateSupport("livesearch",$this->getConfig("livesearch",false));
         }
+        if($this->getConfig("live",false)){
+            $this->enableLiveUpdateSupport("live",$this->getConfig("live",false));
+        }
         return parent::view();
 
     }
