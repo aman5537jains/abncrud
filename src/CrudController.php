@@ -545,13 +545,18 @@ class CrudController extends Controller
                     if($form->getField($formName) instanceof FormBuilder){
                         if($form->getField($formName) instanceof RepeatableComponent){
                           
-                            foreach($formValues as $counter=>$fields){
-                                  
-                                  foreach($fields as $field=>$val){
+                            if(is_array($formValues)){
+                                foreach($formValues as $counter=>$fields){
                                     
-                                    $response[$value]= $form->getField($formName)->forms[$counter]->getField($field)->render();
-                                  }
-                                
+                                    foreach($fields as $field=>$val){
+                                        
+                                        $response[$value]= $form->getField($formName)->forms[$counter]->getField($field)->render();
+                                    }
+                                    
+                                }
+                            }
+                            else{
+                                $response[$value]= $form->getField($formName)->render();
                             }
                         }
                         else if($form->getField($formName) instanceof FormArray){  
