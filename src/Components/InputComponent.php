@@ -3,8 +3,7 @@
 namespace Aman5537jains\AbnCmsCRUD\Components;
 
 use Aman5537jains\AbnCmsCRUD\FormComponent;
- 
- 
+use Aman5537jains\AbnCmsCRUD\Traits\AjaxAttributes;
 class InputComponent extends FormComponent{
     
      
@@ -13,16 +12,14 @@ class InputComponent extends FormComponent{
         if($this->getConfig("live",false)){
             $this->enableLiveUpdateSupport("live",$this->getConfig("live",false));
         }
-        if($this->getConfig("livesearch",false)){
-            $this->enableLiveUpdateSupport("livesearch",$this->getConfig("livesearch",false));
-        }
+       
     }
-    function setConfig($name, $default = ''){
-        $config=  parent::setConfig($name,$default);
-         $this->enableLiveUpdateSupport($name, $default);
+    // function setConfig($name, $default = ''){
+    //     $config=  parent::setConfig($name,$default);
+    //     $this->enableLiveUpdateSupport($name, $default);
 
-        return $config;
-    }
+    //     return $config;
+    // }
 
     function enableLiveUpdateSupport($name,$default){
         if($name=="live"){
@@ -37,18 +34,23 @@ class InputComponent extends FormComponent{
             $this->setConfig("onsuccess","let json =$listiners ;liveUpdate([],json,response.form)");
         }
         if($name=="livesearch" ){
-             
+            //  dump("-",$this->getAttributes());
             $this->setConfig("ajaxEvent","onsearch");
          
             $this->setConfig("ajax",true);
-            $this->setConfig("attr",["data-livesearch"=>"true"]);
-            $inpname=$this->getConfig("name");
-            $listiners = htmlspecialchars(json_encode($this->getConfig("listners",[$this->getConfig("name")])));
+            // $this->setConfig("attr",["data-livesearch"=>"true"]);
+           
+            $inpname=$this->getAttribute("name");
+            
+            // 
+            
+            $listiners = htmlspecialchars(json_encode($this->getConfig("listners", [$inpname])));
     
-            $this->setConfig("payload","let json =$listiners ;console.log(event);  return liveUpdateForm([],json,event.form,{'$inpname-qrystr':querystr}) ");
+            $this->setConfig("payload","let json =$listiners ;  return liveUpdateForm([],json,event.form,{'$inpname-qrystr':querystr}) ");
         
             $this->setConfig("onsuccess"," $('#$inpname').html($(response.form['$inpname']).find('#$inpname').html()); $('#$inpname').trigger('change')");
         }
+        return $this;
     }
     function setupAjax($fn){
         
@@ -58,8 +60,6 @@ class InputComponent extends FormComponent{
         // if($this->getConfig("type")=="select")
         {
             return "function(component,config){ 
-            setTimeout(()=>{
-            
             let select = $(component).find('select');
             if(select && select.attr('onsearch')){
                  select.select2({
@@ -102,7 +102,7 @@ class InputComponent extends FormComponent{
                                 closeOnSelect: true,
                                 multiple:select.attr('multiple') ? true : false});
                             }
-                   },0)  
+                     
              }";
         }
          
@@ -110,7 +110,7 @@ class InputComponent extends FormComponent{
     function onSaveModel($model){
         if($this->getConfig("type","text")=="file"  ){
             if($this->getValue() instanceof \Illuminate\Http\UploadedFile){
-             $model->{$this->getConfig("name","")} =    $this->getValue()->store($this->getConfig("path","files"));
+             $model->{$this->getConfig("name","")} =    $this->getValue()->store($this->getConfig("path","public"));
             }
             return $model;
         }
@@ -179,9 +179,16 @@ class InputComponent extends FormComponent{
        
         
     }
+    function view(){
+        if($this->getConfig("livesearch",false)){
+            $this->enableLiveUpdateSupport("livesearch",$this->getConfig("livesearch",false));
+        }
+        return parent::view();
+
+    }
     function buildInput($name,$attrs){
-         
-       
+        
+        
         $type           = $this->getConfig("type","text");
         $warning ='';
         if($this->getConfig("relation",false)){

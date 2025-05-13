@@ -158,6 +158,7 @@ abstract class Component{
     {
         $this->config = $config;
         $this->setConfig("name",$this->getConfig("name","no_name_field"));
+       
         $label= ucfirst(str_replace("_"," ",str_replace("_id"," ",$this->getConfig("name"))));
 
         $this->setConfig("label",$this->getConfig("label",$label));
@@ -166,6 +167,8 @@ abstract class Component{
         }
     }
 
+
+
     public function getConfig($name,$default=''){
         if(isset($this->config[$name]) )
             return $this->config[$name];
@@ -173,6 +176,9 @@ abstract class Component{
             return  $default;
     }
     public function setConfig($name,$default=''){
+             if($name=="name"){
+                $this->addAttributes(["name"=>$default]);
+             }   
              $this->config[$name]=$default;
              return $this;
     }
@@ -245,7 +251,7 @@ abstract class Component{
     abstract function view();
 
     function parentContainer($view,$jsComponent){
-        return '<div id="'.$this->getConfig("name").'-container" class="crud-wrapper" '.htmlspecialchars($jsComponent).' >'. $view . "</div>";
+        return '<div id="'.$this->getAttribute("name").'-container" class="crud-wrapper" '.htmlspecialchars($jsComponent).' >'. $view . "</div>";
     }
 
     function render(){

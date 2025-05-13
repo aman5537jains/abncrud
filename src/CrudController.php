@@ -12,8 +12,10 @@ use Aman5537jains\AbnCmsCRUD\Components\InputComponent;
 use Aman5537jains\AbnCmsCRUD\Components\LinkComponent;
 use Aman5537jains\AbnCmsCRUD\Components\MultiComponent;
 use Aman5537jains\AbnCmsCRUD\Components\PopupComponent;
+use Aman5537jains\AbnCmsCRUD\Components\RepeatableComponent;
 use Aman5537jains\AbnCmsCRUD\Components\SubmitButtonComponent;
 use Aman5537jains\AbnCmsCRUD\Components\TextComponent;
+use Aman5537jains\AbnCmsCRUD\Layouts\FormArray;
 use Aman5537jains\AbnCmsCRUD\Layouts\FormBuilder;
 use Aman5537jains\AbnCmsCRUD\Layouts\SingleViewLayout;
 use Aman5537jains\AbnCmsCRUD\Layouts\TableLayout;
@@ -488,13 +490,105 @@ class CrudController extends Controller
         }
         return $TableLayout;
     }
+    public function liveUpdateLoop($listners,$form){
+        $response =[];
+        
+        foreach($listners as $key=>$value){
+            parse_str($value . "=1", $result);
+            if(is_array($result)){
+                foreach($result as $formName=>$formValues){
+                    if($form->getField($formName) instanceof FormBuilder){
+                        if($form->getField($key) instanceof RepeatableComponent){
+                            foreach($formValues as $counter=>$name){
+                                $response[$value]= $form->getField($key)->form[$counter]->getField($name)->render();
+                            }
+                        }
+                    }
+                }
+            }
+            else{
+                if($form->hasField($key) ){
+                    if(!$form->getField($key) instanceof FormBuilder){
+                        $response[$key]= $form->getField($key)->render();
+                    }
+                }
+            }
+            // if($form->hasField($key) ){
+            //     if(!$form->getField($key) instanceof FormBuilder){
+            //         $response[$key]= $form->getField($key)->render();
+            //     }
+            //     else if($form->getField($key) instanceof FormBuilder){
+            //         if($form->getField($key) instanceof RepeatableComponent){
+            //             foreach($value as $counter=>$name){
+            //                 $response[$key][$counter][$name]= $form->getField($key)->form[$counter]->getField($name)->render();
+            //             }
+            //      }
+                        
+            //     }
+                 
+            
+            // } 
+             
+        }
+        
+         return $response;
+    }
     public function liveUpdate($form){
         $response =[];
-        // dd(request()->get("live_listners",[]));
-         foreach($form->getFields() as $key=>$field){
-            if(in_array($key,request()->get("live_listners",[])))
-            $response[$key]=$field->render();
-         }
+         $listners = request()->get("live_listners",[]);
+         
+         foreach($listners as $key=>$value){
+            parse_str($value . "=1", $result);
+            
+            if(is_array($result)){
+                foreach($result as $formName=>$formValues){
+                    if($form->getField($formName) instanceof FormBuilder){
+                        if($form->getField($formName) instanceof RepeatableComponent){
+                          
+                            foreach($formValues as $counter=>$fields){
+                                  
+                                  foreach($fields as $field=>$val){
+                                    
+                                    $response[$value]= $form->getField($formName)->forms[$counter]->getField($field)->render();
+                                  }
+                                
+                            }
+                        }
+                        else if($form->getField($formName) instanceof FormArray){  
+                            foreach($formValues as $field=>$val){
+                                    
+                                $response[$value]= $form->getField($formName)->getField($field)->render();
+                              }
+
+                        }
+                    }
+                    else{
+                        if($form->hasField($formName) ){
+                            if(!$form->getField($formName) instanceof FormBuilder){
+                                $response[$value]= $form->getField($formName)->render();
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // if($form->hasField($key) ){
+            //     if(!$form->getField($key) instanceof FormBuilder){
+            //         $response[$key]= $form->getField($key)->render();
+            //     }
+            //     else if($form->getField($key) instanceof FormBuilder){
+            //         if($form->getField($key) instanceof RepeatableComponent){
+            //             foreach($value as $counter=>$name){
+            //                 $response[$key][$counter][$name]= $form->getField($key)->form[$counter]->getField($name)->render();
+            //             }
+            //      }
+                        
+            //     }
+                 
+            
+            // } 
+             
+        }
          return $response;
     }
     public function index(Request $request,$slug=""){

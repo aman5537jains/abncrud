@@ -14,13 +14,12 @@ class RepeatableComponent extends FormBuilder{
     function init(){
         parent::init();
         $this->form = new RepeatableFormComponent(["name"=>$this->getConfig("name"),"counter"=>"0"]);
-        
     }
+
     function setValue($values){
        
         if($this->getConfig("saveMethod","JSON")=="JSON"){
                 try{
-                    
                     if(is_string($values)){
                         $values =json_decode($values,true);
                     }
@@ -114,11 +113,11 @@ class RepeatableComponent extends FormBuilder{
         function removeForm(e){
             $(e).parent().remove();
         }
-                    function addMore(){
+                    function addMore(name){
                             
-                            let html = atob($('#repeatable-clone').val()).replace(/repeatable{{counter}}/g, 'repeatable');
+                            let html = atob($('#repeatable-clone-'+name).val()).replace(/repeatable{{counter}}/g, 'repeatable');
 
-                            $('.repeatable-forms').append(html.replace(/{{counter}}/g, $('.repeatable').last().data('counter')+1))
+                            $('.repeatable-forms-'+name).append(html.replace(/{{counter}}/g, $('.repeatable-'+name).last().data('counter')+1))
                     }
         </script>";
     }
@@ -145,12 +144,13 @@ class RepeatableComponent extends FormBuilder{
         $this->addDefaultIfNotExist();
         $cloneForm  = $this->createNewForm("{{counter}}",[]);
         $cloneForm ->setConfig("counter","{{counter}}");
+        $name = $this->getConfig("name");
         $formsList='';
         
         foreach($this->forms as $key=>$form){
             $form =str_replace("{{counter}}",$key,$form);
 
-           $formsList.= '<div style="    border: 1px dotted;  padding: 10px; border-radius: 10px; margin: 13px 0;"  class ="repeatable" data-counter="'.$key.'"  ><span style="cursor:pointer;z-index:99;position: absolute;
+           $formsList.= '<div style="    border: 1px dotted;  padding: 10px; border-radius: 10px; margin: 13px 0;"  class ="repeatable-'.$name.'" data-counter="'.$key.'"  ><span style="cursor:pointer;z-index:99;position: absolute;
     right: 35px;" type="button" onclick="removeForm(this)">X</span> '. $form. '  </div>';
         }
         $html = '<div style="border: 1px dotted; padding: 10px;  border-radius: 10px; margin: 13px 0;" class="repeatable" data-counter="{{counter}}">
@@ -163,10 +163,10 @@ class RepeatableComponent extends FormBuilder{
     border-radius: 10px;
     margin: 13px 0;" class="repeatable-container" >
             <h2>'.$this->getLabel().'</h2>
-            <div class="repeatable-forms">'.$formsList.'
+            <div class="repeatable-forms-'.$name.'">'.$formsList.'
             </div>
-            <button type="button" class="buttons secondary" onclick="addMore()">Add More</button>
-            <input type="hidden" id="repeatable-clone" value="'.base64_encode($html).'" />
+            <button type="button" class="buttons secondary" onclick="addMore(\'$name\')">Add More</button>
+            <input type="hidden" id="repeatable-clone'.$name.'" value="'.base64_encode($html).'" />
         </div>';
     }
 
@@ -179,13 +179,15 @@ class RepeatableFormComponent extends FormBuilder{
         $this->setConfig("form",false);
         $this->addField("id",new HiddenComponent(["name"=>"id"]));
     }
+    
     function setFormNameArray(){
         $formName = $this->getConfig("name");
         $counter = $this->getConfig("counter",'0');
         foreach ($this->getFields() as $key => $value) {
             $name = $value->getConfig("name");
             $value->addAttributes([
-            "name"=>"$formName"."[$counter][".$name."]",
+            "name"  =>"$formName"."[$counter][".$name."]",
+            "id"    =>"$formName"."[$counter][".$name."]",
             "data-validation-key"=>"$formName.$counter.$name",
             "data-key"=>"$name",
             "data-form-name"=>"$formName",
@@ -195,7 +197,7 @@ class RepeatableFormComponent extends FormBuilder{
 
     function view(){
         $this->setFormNameArray();
- 
+        
         return  parent::view();
     }
 }
