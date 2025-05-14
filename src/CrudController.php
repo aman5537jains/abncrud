@@ -626,7 +626,7 @@ class CrudController extends Controller
         // dd(array_merge($form->getModel()->toArray(),old()),);
         // $form =$form->setValue(array_merge($form->getModel()->toArray(),request()->all()));
         if(request()->isMethod("GET")){
-            $form =$form->setValue(array_merge($form->getModel()->toArray()));
+            $form =$form->setValue(array_merge($form->getModel()->toArray(),request()->all()));
         }
         else{
             $form =$form->setValue( request()->all());
