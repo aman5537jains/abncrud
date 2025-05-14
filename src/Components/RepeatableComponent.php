@@ -193,7 +193,7 @@ class RepeatableFormComponent extends FormBuilder{
             "data-key"=>"$name",
             "data-form-name"=>"$formName",
             "data-counter"=>"$counter"]);
-        parent::addField($name,$value);
+      return  parent::addField($name,$value);
     }
     
 }

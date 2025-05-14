@@ -4,10 +4,10 @@ namespace Aman5537jains\AbnCmsCRUD\Layouts;
 class FormArray  extends FormBuilder
 {   
     function addField($name, $value = ''){
-          $formName = $this->getConfig("name");
-           $name = $value->getConfig("name");
-           $value->addAttributes(["name"=>"$formName"."[".$name."]","data-validation-key"=>"$formName.$name"]);
-           parent::addField($name,$value);
+        $formName = $this->getConfig("name");
+        $name = $value->getConfig("name");
+        $value->addAttributes(["name"=>"$formName"."[".$name."]","data-validation-key"=>"$formName.$name"]);
+        return parent::addField($name,$value);
     }
     
     function onSaveModel($model){

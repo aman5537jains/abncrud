@@ -549,8 +549,11 @@ class CrudController extends Controller
                                 foreach($formValues as $counter=>$fields){
                                     
                                     foreach($fields as $field=>$val){
-                                       
-                                        $response[$value]= $form->getField($formName)->forms[$counter]->getField($field)->render();
+                                        $fieldObject  =     $form->getField($formName)->forms[$counter]->getField($field);
+                                        $response[$value]= $fieldObject->render();
+                                        // $response[$value."_config"]= [
+                                        //     "id"=>$fieldObject->getAttribute("id")
+                                        // ];
                                     }
                                     
                                 }

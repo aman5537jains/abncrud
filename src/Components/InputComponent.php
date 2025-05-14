@@ -56,9 +56,9 @@ class InputComponent extends FormComponent{
             
             $listiners = htmlspecialchars(json_encode($this->getConfig("listners", [$inpname])));
     
-            $this->setConfig("payload","let json =$listiners ;  return liveUpdateForm([],json,event.form,{'$inpname-qrystr':querystr}) ");
+            $this->setConfig("payload","let json =$listiners ;  return liveUpdateForm('$inpname',json,event.form,{'$inpname-qrystr':querystr}) ");
         
-            $this->setConfig("onsuccess"," $('#$inpname').html($(response.form['$inpname']).find('#$inpname').html()); $('#$inpname').trigger('change')");
+            $this->setConfig("onsuccess","");
         }
         return $this;
     }
@@ -100,7 +100,7 @@ class InputComponent extends FormComponent{
                                         $(data.form[select[0].name])
                                         .find('option')
                                         .each(function(index, element){
-                                         console.log({index, element})
+                                          
                                             all.push({id:$(element).val(),text:$(element).text()})
                                         })
                                         

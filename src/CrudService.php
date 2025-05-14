@@ -81,6 +81,7 @@ class CrudService{
                     });
                 observer.observe(document.body, { childList: true, subtree: true });
         });
+
                 function formData(obj){
                     let form_data = new FormData();
                     for ( var key in obj ) {
@@ -88,15 +89,25 @@ class CrudService{
                     }
                     return form_data;
                 }
-                function liveUpdateForm(emitter,listners,form,extra={}){
-                 let formValues = Object.fromEntries((new FormData(form)).entries());
+               function liveUpdateForm(emitter,listners,form,extra={}){
+                 let formValues = {};
                  
-                   return {...formValues,emitter:emitter,live_listners:listners,...extra} 
+                    for(let [key,value] of (new FormData(form)).entries()){
+                        if(value instanceof File){
+                            continue;
+                         
+                        }
+                        formValues[key] = value;
+                    }
+                   return {...formValues,live_listners:listners,...extra}
                      
                 }
+                   
+                 
                 function liveUpdate(emitter,listners,form){
                     for(lisner of listners){
-                        $('#'+lisner+'-container').replaceWith(form[lisner]);
+                       let id = $('#'+lisner).length>0 ? ($('#'+lisner).attr('id')+'-container') : lisner+'-container';
+                        $('#'+id).replaceWith(form[lisner]);
                     }
                 }
                 function debounce(func, delay) {
