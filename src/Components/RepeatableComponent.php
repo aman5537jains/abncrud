@@ -75,10 +75,10 @@ class RepeatableComponent extends FormBuilder{
                $model->{$relation}[]=$value->onSaveModel( $idValue>0 ?   $class::find($idValue):new $class);
             }
             
-            if(count($ids)>0){
+            // if(count($ids)>0){
                 
                 $model->{$relation}()->whereNotIn("id",$ids)->delete();
-            }
+            // }
              
         }
         
