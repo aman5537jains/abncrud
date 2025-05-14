@@ -29,19 +29,12 @@ class InputComponent extends FormComponent{
             $this->setConfig("ajax",true);
             $listiners = $this->getConfig("listners",[]);
             $allListeners = $listiners;//[];
-            // foreach($listiners as $listiner=>$listinerVal){
-            //     if(is_array($listinerVal)){
-            //         $allListeners[$listinerVal['name']]=$listinerVal['name'];
-            //     }
-            //     else{
-            //         $allListeners[$listinerVal]=["name"=>$listinerVal,"id"=>$listinerVal];
-            //     }
-            // }
+             $inpname=$this->getAttribute("name");
             $listiners = htmlspecialchars(json_encode($allListeners));
     
-            $this->setConfig("payload","let json =$listiners ; return liveUpdateForm('',json,event.form) ");
+            $this->setConfig("payload","let json =$listiners ; return liveUpdateForm('$inpname',json,event.form) ");
         
-            $this->setConfig("onsuccess","let json =$listiners ;liveUpdate('',json,response.form)");
+            $this->setConfig("onsuccess","let json =$listiners ;liveUpdate('$inpname',json,response.form)");
         }
         if($name=="livesearch" ){
             //  dump("-",$this->getAttributes());

@@ -536,7 +536,13 @@ class CrudController extends Controller
     public function liveUpdate($form){
         $response =[];
          $listners = request()->get("live_listners",[]);
-         
+         $live_emitter = request()->get("live_emitter",false);
+         if($live_emitter){
+            $onLiveUpdateFn = $form->getField($live_emitter)->getConfig("onLiveUpdate",function(){
+
+            });
+            $onLiveUpdateFn($form,$listners);
+         }
          foreach($listners as $key=>$value){
             parse_str($value . "=1", $result);
             
