@@ -91,7 +91,7 @@ class CrudService{
                 function liveUpdateForm(emitter,listners,form,extra={}){
                  let formValues = Object.fromEntries((new FormData(form)).entries());
                  
-                   return {...formValues,live_listners:listners,...extra} 
+                   return {...formValues,emitter:emitter,live_listners:listners,...extra} 
                      
                 }
                 function liveUpdate(emitter,listners,form){

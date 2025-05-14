@@ -131,7 +131,10 @@ class RepeatableComponent extends FormBuilder{
     }
 
     function createNewForm($counter,$value=[]){
-        $form =    new RepeatableFormComponent(["name"=>$this->getConfig("name"),"counter"=>$counter]);
+        $form =    new RepeatableFormComponent(["name"=>$this->getConfig("name"),"attr"=>[
+
+            "id"=>$this->getConfig("name")."_".$counter
+        ],"counter"=>$counter]);
         foreach($this->form->getFields() as $name=>$field){
              
             $form->addField($name,clone $field); 
@@ -165,8 +168,8 @@ class RepeatableComponent extends FormBuilder{
             <h2>'.$this->getLabel().'</h2>
             <div class="repeatable-forms-'.$name.'">'.$formsList.'
             </div>
-            <button type="button" class="buttons secondary" onclick="addMore(\'$name\')">Add More</button>
-            <input type="hidden" id="repeatable-clone'.$name.'" value="'.base64_encode($html).'" />
+            <button type="button" class="buttons secondary" onclick="addMore(\''.$name.'\')">Add More</button>
+            <input type="hidden" id="repeatable-clone-'.$name.'" value="'.base64_encode($html).'" />
         </div>';
     }
 
@@ -179,25 +182,18 @@ class RepeatableFormComponent extends FormBuilder{
         $this->setConfig("form",false);
         $this->addField("id",new HiddenComponent(["name"=>"id"]));
     }
-    
-    function setFormNameArray(){
+    function addField($name, $value = ''){
         $formName = $this->getConfig("name");
         $counter = $this->getConfig("counter",'0');
-        foreach ($this->getFields() as $key => $value) {
-            $name = $value->getConfig("name");
+        $name = $value->getConfig("name");
             $value->addAttributes([
             "name"  =>"$formName"."[$counter][".$name."]",
-            "id"    =>"$formName"."[$counter][".$name."]",
+            "id"    =>$this->generateID("$formName"."[$counter][".$name."]"),
             "data-validation-key"=>"$formName.$counter.$name",
             "data-key"=>"$name",
             "data-form-name"=>"$formName",
             "data-counter"=>"$counter"]);
-        }
+        parent::addField($name,$value);
     }
-
-    function view(){
-        $this->setFormNameArray();
-        
-        return  parent::view();
-    }
+    
 }

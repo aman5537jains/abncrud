@@ -18,9 +18,8 @@ abstract class Component{
      function __construct($config,$controller=null)
      {
         $this->controller =$controller;
-        $this->setComponentID($this->generateComponnetUID());
-
         $this->setDefaultConfig( array_merge($this->defaultConfig(),$config) );
+       
         $this->init();
      }
 
@@ -35,13 +34,13 @@ abstract class Component{
 
 
      function getAttributes(){
-         $name           = $this->getConfig("name");
-         $id             = $this->getConfig("id",$name);
+        //  $name           = $this->getConfig("name");
+        //  $id             = $this->getConfig("id",$name);
 
 
         //  $inputClass     = $this->getConfig("input-class","dForm-control")." ".$this->__clasess;
         //  $placeholder    = $this->getConfig("placeholder",$this->getConfig("label",""));
-         return  array_merge([ "id"=>$id,"name"=>$name],$this->getConfig("attr",[]));
+         return  $this->getConfig("attr",[]);//array_merge([ "id"=>$id,"name"=>$name],$this->getConfig("attr",[]));
      }
      function getAttributesString(){
          $atrr = $this->getAttributes();
@@ -51,9 +50,9 @@ abstract class Component{
          }
          return $attrString;
      }
-     function getAttribute($name){
+     function getAttribute($name,$default=''){
          $atrr = $this->getAttributes();
-         return isset($atrr[$name])?$atrr[$name]:"";
+         return isset($atrr[$name])?$atrr[$name]:$default;
      }
      function hasAttribute($name){
         $atrr = $this->getAttributes();
@@ -72,6 +71,21 @@ abstract class Component{
      function addAttributes($arr){
          $attr = $this->getConfig("attr",[]);
          $this->setConfig("attr", array_merge($attr,$arr));
+         return  $this;
+     }
+    function removeAttribute($key){
+         $attr = $this->getConfig("attr",[]);
+         if(array_key_exists( $key,$attr)){
+            unset($attr[$key]);
+         }
+         $this->setConfig("attr", $attr);
+         return  $this;
+     }
+     
+      function addAttribute($key,$val){
+         $attr = $this->getConfig("attr",[]);
+         $attr[$key] =$val;
+         $this->setConfig("attr", $attr);
          return  $this;
      }
 
@@ -153,12 +167,24 @@ abstract class Component{
      {
        return [];
      }
+     function generateID($name){
+        
+        $id = preg_replace('/[\[\]]+/', '_', $name);
+        return rtrim($id, '_');
 
+     }
     function setDefaultConfig($config)
     {
         $this->config = $config;
         $this->setConfig("name",$this->getConfig("name","no_name_field"));
-       
+        if(!$this->hasAttribute("name")){
+                $this->addAttributes(["name"=>$this->getConfig("name")]);
+        }
+        if(!$this->hasAttribute("id")){
+                $this->addAttributes(["id"=>$this->generateID($this->getConfig("name"))]);
+        }
+        $this->setComponentID( $this->getAttribute("id"));
+
         $label= ucfirst(str_replace("_"," ",str_replace("_id"," ",$this->getConfig("name"))));
 
         $this->setConfig("label",$this->getConfig("label",$label));
@@ -176,11 +202,11 @@ abstract class Component{
             return  $default;
     }
     public function setConfig($name,$default=''){
-             if($name=="name"){
-                $this->addAttributes(["name"=>$default]);
-             }   
-             $this->config[$name]=$default;
-             return $this;
+        if($name=="name"){
+            $this->addAttributes(["name"=>$default]);
+        }   
+        $this->config[$name]=$default;
+        return $this;
     }
     public function setConfigs($arr){
         $this->config = array_merge($this->config,$arr );
@@ -251,7 +277,7 @@ abstract class Component{
     abstract function view();
 
     function parentContainer($view,$jsComponent){
-        return '<div id="'.$this->getAttribute("name").'-container" class="crud-wrapper" '.htmlspecialchars($jsComponent).' >'. $view . "</div>";
+        return '<div id="'.$this->getAttribute("id").'-container" class="crud-wrapper" '.htmlspecialchars($jsComponent).' >'. $view . "</div>";
     }
 
     function render(){

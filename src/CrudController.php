@@ -549,7 +549,7 @@ class CrudController extends Controller
                                 foreach($formValues as $counter=>$fields){
                                     
                                     foreach($fields as $field=>$val){
-                                        
+                                       
                                         $response[$value]= $form->getField($formName)->forms[$counter]->getField($field)->render();
                                     }
                                     
@@ -560,10 +560,15 @@ class CrudController extends Controller
                             }
                         }
                         else if($form->getField($formName) instanceof FormArray){  
-                            foreach($formValues as $field=>$val){
-                                    
-                                $response[$value]= $form->getField($formName)->getField($field)->render();
-                              }
+                             if(is_array($formValues)){
+                                foreach($formValues as $field=>$val){
+                                    $response[$value]= $form->getField($formName)->getField($field)->render();
+                                }
+                             }
+                             else{
+                                 $response[$value]= $form->getField($formName)->render();
+                             }
+                           
 
                         }
                     }

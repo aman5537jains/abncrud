@@ -3,15 +3,13 @@
 namespace Aman5537jains\AbnCmsCRUD\Layouts; 
 class FormArray  extends FormBuilder
 {   
-
-    function setFormNameArray(){
-        $formName = $this->getConfig("name");
-        foreach ($this->getFields() as $key => $value) {
-            $name = $value->getConfig("name");
-            $value->addAttributes(["name"=>"$formName"."[".$name."]","data-validation-key"=>"$formName.$name"]);
-        }
+    function addField($name, $value = ''){
+          $formName = $this->getConfig("name");
+           $name = $value->getConfig("name");
+           $value->addAttributes(["name"=>"$formName"."[".$name."]","data-validation-key"=>"$formName.$name"]);
+           parent::addField($name,$value);
     }
-
+    
     function onSaveModel($model){
         $model->{$this->getConfig("name")} = json_encode($this->getValue());
         return $model;
@@ -39,8 +37,5 @@ class FormArray  extends FormBuilder
     }
      
 
-    function view(){
-        $this->setFormNameArray();
-        return parent::view();
-    }
+    
 }

@@ -25,13 +25,23 @@ class InputComponent extends FormComponent{
         if($name=="live"){
             $fn = $default;
             $fn($this);
-           
+             
             $this->setConfig("ajax",true);
-            $listiners = htmlspecialchars(json_encode($this->getConfig("listners",[])));
+            $listiners = $this->getConfig("listners",[]);
+            $allListeners = $listiners;//[];
+            // foreach($listiners as $listiner=>$listinerVal){
+            //     if(is_array($listinerVal)){
+            //         $allListeners[$listinerVal['name']]=$listinerVal['name'];
+            //     }
+            //     else{
+            //         $allListeners[$listinerVal]=["name"=>$listinerVal,"id"=>$listinerVal];
+            //     }
+            // }
+            $listiners = htmlspecialchars(json_encode($allListeners));
     
-            $this->setConfig("payload","let json =$listiners ; return liveUpdateForm([],json,event.form) ");
+            $this->setConfig("payload","let json =$listiners ; return liveUpdateForm('',json,event.form) ");
         
-            $this->setConfig("onsuccess","let json =$listiners ;liveUpdate([],json,response.form)");
+            $this->setConfig("onsuccess","let json =$listiners ;liveUpdate('',json,response.form)");
         }
         if($name=="livesearch" ){
             //  dump("-",$this->getAttributes());
@@ -189,6 +199,7 @@ class InputComponent extends FormComponent{
         if($this->getConfig("live",false)){
             $this->enableLiveUpdateSupport("live",$this->getConfig("live",false));
         }
+        
         return parent::view();
 
     }

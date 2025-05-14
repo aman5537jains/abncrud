@@ -11,28 +11,9 @@ abstract class FormComponent extends Component{
     private $__validations;
     private $__clasess='';
 
-    function getAttributes(){
-        $name           = $this->getConfig("name");
-        $id             = $this->getConfig("id",$name);
-        $validations    = $this->validator();
-        $required       = $validations->isRequired()?['required'=>true]:[];
-       
-        $inputClass     = $this->getConfig("input-class","dForm-control")." ".$this->__clasess;
-        $placeholder    = $this->getConfig("placeholder",$this->getConfig("label",""));
-         return (array_merge(array_merge($required,['placeholder' => $placeholder, 'class'=>$inputClass,"id"=>$id]),$this->getConfig("attr",[])) );
+     
 
-        
-    }
-    function getAttribute($name,$default=""){
-        $atrr = $this->getAttributes();
-        return isset($atrr[$name])?$atrr[$name]:$default;
-    }
-
-    function addClass($classes){
-        $this->__clasess.= $classes;
-        return $this;
-    }
-   
+     
 
     function buildInput($name,$attrs){
         return  \Form::text($name,$this->getValue(), $attrs);;
@@ -68,6 +49,12 @@ abstract class FormComponent extends Component{
     }
     function setValidations($validations,$messages=[]){
         $this->__validations = new LaravelInputValidations($validations,$messages);
+        if($this->__validations->isRequired()){
+            $this->addAttribute( "required",true);
+         }
+        else{
+            $this->removeAttribute( "required");
+        }
         return $this;
     }
 
@@ -76,12 +63,15 @@ abstract class FormComponent extends Component{
     {
         parent::setDefaultConfig($config); 
         $this->setValidations($this->getConfig("validations",[]),$this->getConfig("validation_messages",[]));
+        $inputClass     = $this->getConfig("input-class","dForm-control")." ".$this->__clasess;
+        $placeholder    = $this->getConfig("placeholder",$this->getConfig("label",""));
+        $this->addAttributes([
+            "class"=>$this->getAttribute("class")." ".$inputClass,
+            "placeholder"=>$this->getAttribute("placeholder",$placeholder)
+        ]);
+        
+         
 
-
-        $value =   request()->get($this->getConfig("name",""),"");
-        if(!empty($value )){
-            // $this->setValue($value);
-        }
     }
 
     function onSave($value){
