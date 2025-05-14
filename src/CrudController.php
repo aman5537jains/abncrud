@@ -624,8 +624,13 @@ class CrudController extends Controller
         // $form->addField("validateUrl",new HiddenComponent(["name"=>"validateUrl","value"=>$this->action("validateForm")]));
         $this->formFields($form);
         // dd(array_merge($form->getModel()->toArray(),old()),);
-        $form =$form->setValue(array_merge($form->getModel()->toArray(),request()->all()));
-       
+        // $form =$form->setValue(array_merge($form->getModel()->toArray(),request()->all()));
+        if(request()->isMethod("GET")){
+            $form =$form->setValue(array_merge($form->getModel()->toArray()));
+        }
+        else{
+            $form =$form->setValue( request()->all());
+        }
         return $form;
     }
 
