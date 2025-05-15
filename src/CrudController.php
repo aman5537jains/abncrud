@@ -232,13 +232,20 @@ class CrudController extends Controller
                     preg_match("/^enum\(\'(.*)\'\)$/", $column->Type, $matches);
                     $enum = explode("','", $matches[1]);
 
-
-                    $option = ["type"=>"select","name"=>$column->Field,"options"=>array_combine($enum, $enum),"validations"=>["required"]];
+                     $options = array_map(function($value){ return ucfirst(str_replace('_', ' ', $value)); }, $enum);
+                    $option = ["type"=>"select","name"=>$column->Field,"options"=>array_combine($enum, $options),"validations"=>["required"]];
+                
+                     
                 }
                 else if($column->Type === "date")
                 {
                     $class = InputComponent::class;
                     $option = ["type"=>"date","name"=>$column->Field,"validations"=>["required"]];
+                }
+                 else if($column->Type === "time")
+                {
+                    $class = InputComponent::class;
+                    $option = ["type"=>"time","name"=>$column->Field,"validations"=>["required"]];
                 }
                 else if($column->Type === "datetime")
                 {
@@ -626,7 +633,7 @@ class CrudController extends Controller
         // dd(array_merge($form->getModel()->toArray(),old()),);
         // $form =$form->setValue(array_merge($form->getModel()->toArray(),request()->all()));
         if(request()->isMethod("GET")){
-            $form =$form->setValue(array_merge($form->getModel()->toArray(),request()->all()));
+            $form =$form->setValue(array_merge($form->getModel()->toArray()));
         }
         else{
             $form =$form->setValue( request()->all());

@@ -90,17 +90,14 @@ class CrudService{
                     return form_data;
                 }
                function liveUpdateForm(emitter,listners,form,extra={}){
-                 let formValues = {};
-                 
+                    let formValues = {};
                     for(let [key,value] of (new FormData(form)).entries()){
                         if(value instanceof File){
                             continue;
-                         
                         }
                         formValues[key] = value;
                     }
                    return {...formValues,live_emitter:emitter,live_listners:listners,...extra}
-                     
                 }
                    
                  

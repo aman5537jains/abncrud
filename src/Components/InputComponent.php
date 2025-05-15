@@ -251,6 +251,9 @@ class InputComponent extends FormComponent{
 
             $input= \Form::datetimeLocal($name,$this->getValue(), $attrs);
         }
+        else if($type=="time"){
+            $input= \Form::time($name,$this->getValue(), $attrs);
+        }
         else if($type=="select"){
             // $attr = $this->getConfig("attr",[]);
             

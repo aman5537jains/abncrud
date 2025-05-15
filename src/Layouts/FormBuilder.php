@@ -78,8 +78,8 @@ class FormBuilder  extends OneRowLayout
                     preg_match("/^enum\(\'(.*)\'\)$/", $column->Type, $matches);
                     $enum = explode("','", $matches[1]);
 
-
-                    $option = ["type"=>"select","options"=>array_combine($enum, $enum),"validations"=>["required"]];
+                    $options = array_map(function($value){ return ucfirst(str_replace('_', ' ', $value)); }, $enum);
+                    $option = ["type"=>"select","name"=>$column->Field,"options"=>array_combine($enum, $options),"validations"=>["required"]];
                 }
                 else if($column->Type === "date")
                 {
