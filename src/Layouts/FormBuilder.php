@@ -112,6 +112,18 @@ class FormBuilder  extends OneRowLayout
         }
         return $arr;
    }
+   function addField($name, $value = ''){
+    try{
+       
+        if($value && !$value->getConfig("col",false))
+            $value->setConfig("col",$this->getConfig("input-layout-col",config("crud.form_input_class")));
+    
+    }
+    catch(\Exception $e){
+        dd($value);
+    }
+    return parent::addField($name,$value);
+   }
     function validate(){
         $this->build();
  
@@ -305,14 +317,26 @@ class FormBuilder  extends OneRowLayout
                 function showErrors(xhr,event){
                       if (xhr.status === 422) {
                                      $("label.error").remove();
-                                        $("span.error").remove();
+                                        $(".crud-dynamic-error").hide();
                                         $.each(xhr.responseJSON.data, function(key, value) {
                                             let inputField = $('[data-validation-key="' + key + '"]');
+                                           
                                             if(inputField.length<=0){
                                              inputField = $('[name="' + key + '"]');
                                             }
-                                             inputField.after('<span class="text-danger error dynamic-error">' + value[0] + '</span>');
+                                             if($('[data-validation-key-error="'+key+'"]').length>0){
+                                                $('[data-validation-key-error="'+key+'"]').html( value[0]);
+                                                $('[data-validation-key-error="'+key+'"]').addClass("crud-dynamic-error error text-danger")
+                                                $('[data-validation-key-error="'+key+'"]').show();
+                                                 console.log({key,a:2})
+                                             }
+                                             else{
+                                              console.log({key,a:1})
+                                                 inputField.after('<span data-validation-key-error="'+key+'" class="1 text-danger error crud-dynamic-error">' + value[0] + '</span>');
+                                             }
+
                                         });
+                                       
                                        
                                     }
                                     else{

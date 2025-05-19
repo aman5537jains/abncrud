@@ -26,7 +26,8 @@ class FormArrayInput  extends FormBuilder
             foreach($this->getValue() as $key=>$value){
                 foreach($value as $vals){
                     if($model->exists){
-                        $classFind =  $class::where($model->{$relation}()->getForeignKeyName(),$model->{$model->{$relation}()->getLocalKeyName()})->where($key,$vals)->first();
+                        $classFind =  $class::where($model->{$relation}()->getForeignKeyName(),$model->{$model->{$relation}()->getLocalKeyName()})
+                        ->where($key,$vals)->first();
                         if($classFind){
                             $class = $classFind;
                             $ids[] = $class->id;
@@ -54,7 +55,7 @@ class FormArrayInput  extends FormBuilder
 
 
     function setValue($values){
-      
+     
         try{
             $values= is_string($values)?json_decode($values,true):$values;
         }

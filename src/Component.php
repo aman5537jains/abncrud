@@ -311,7 +311,8 @@ abstract class Component
 
     function parentContainer($view, $jsComponent)
     {
-        return '<div id="' . $this->getAttribute("id") . '-container" class="crud-wrapper" ' . htmlspecialchars($jsComponent) . ' >' . $view . "</div>";
+        $class = $this->getConfig("col","");
+        return '<div id="' . $this->getAttribute("id") . '-container" class="'.$class.'" ' . htmlspecialchars($jsComponent) . ' >' . $view . "</div>";
     }
 
     function render()

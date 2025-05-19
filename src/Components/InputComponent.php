@@ -256,7 +256,9 @@ class InputComponent extends FormComponent{
         }
         else if($type=="select"){
             // $attr = $this->getConfig("attr",[]);
-            
+            $validationname = $this->getAttribute("data-validation-key",$this->getAttribute("name"));
+            $error = '<span data-validation-key-error="'.$validationname.'"  ></span>';
+
 
             $optionattr  = $this->getConfig("options-attr",[]);
             if($this->getConfig("multiple",false)){
@@ -298,7 +300,7 @@ class InputComponent extends FormComponent{
                 $select.="<option $selected $stro value='$key'>$option</option>";
             }
 
-            $select.='</select>'.$warning;
+            $select.='</select>'.$error.$warning;
             // $optionattr
             $input=$select;//\Form::select($name,$options,$this->getValue(), $attrs);
         }

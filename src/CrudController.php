@@ -403,7 +403,7 @@ class CrudController extends Controller
     }
 
     public function searchFormBuilder(&$model){
-        $form =  (new FormBuilder(["method"=>"GET","save-title"=>"Search","module"=>static::$module,"back_url"=>$this->action("index")],$this));
+        $form =  (new FormBuilder(["name"=>"search","method"=>"GET","save-title"=>"Search","module"=>static::$module,"back_url"=>$this->action("index")],$this));
         $form->setModel($model);
         $form->setConfig("validate",false);
         $this->formFields($form);
@@ -545,10 +545,12 @@ class CrudController extends Controller
          $listners = request()->get("live_listners",[]);
          $live_emitter = request()->get("live_emitter",false);
          if($live_emitter){
-            $onLiveUpdateFn = $form->getField($live_emitter)->getConfig("onLiveUpdate",function(){
+            if($form->hasField($live_emitter)){
+                $onLiveUpdateFn = $form->getField($live_emitter)->getConfig("onLiveUpdate",function(){
 
-            });
-            $onLiveUpdateFn($form,$listners);
+                });
+                $onLiveUpdateFn($form,$listners);
+            }
          }
          foreach($listners as $key=>$value){
             parse_str($value . "=1", $result);
@@ -584,8 +586,6 @@ class CrudController extends Controller
                              else{
                                  $response[$value]= $form->getField($formName)->render();
                              }
-                           
-
                         }
                     }
                     else{
@@ -626,7 +626,7 @@ class CrudController extends Controller
 
     public function formBuilder($model=null){
 
-        $this->layouts["form"] = $form =  (new FormBuilder(["module"=>static::$module,"back_url"=>$this->action("index")],$this));
+        $this->layouts["form"] = $form =  (new FormBuilder(["name"=>static::$module."_form","module"=>static::$module,"back_url"=>$this->action("index")],$this));
         $form->setModel($model);
         // $form->addField("validateUrl",new HiddenComponent(["name"=>"validateUrl","value"=>$this->action("validateForm")]));
         $this->formFields($form);
