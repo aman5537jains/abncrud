@@ -225,9 +225,7 @@ abstract class Component
     }
     public function setConfig($name, $default = '')
     {
-        if ($name == "name") {
-            $this->addAttributes(["name" => $default]);
-        }
+       
         $this->config[$name] = $default;
         return $this;
     }
