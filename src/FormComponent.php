@@ -131,6 +131,9 @@ class LaravelInputValidations{
         $this->validations=$validations;
 
     }
+     function add($validations){
+        $this->validations = array_merge($this->validations,$validations);
+    }
     function getValidations(){
         return $this->validations;
     }
