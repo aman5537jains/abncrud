@@ -668,7 +668,7 @@ class CrudController extends Controller
                 $this->flash("Record Added Successfully");
                 if(request()->expectsJson()){
                     return response()->json([
-                        "status"=>true,"redirect"=>$this->action("index"),"data"=>[]
+                        "status"=>true,"redirect"=>$this->action("index"),"data"=>$response
                     ]);
                 }
                 return redirect($this->action("index"));
