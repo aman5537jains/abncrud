@@ -487,7 +487,7 @@ class FormBuilder  extends OneRowLayout
         "href"=>$this->getConfig("action"),
         "payload"=>"return  new FormData(event);",
         "onsuccess"=>$this->getConfig("onsuccess","window.location  = response.redirect"),
-        "onerror"=>$this->getConfig("onsuccess","showErrors(response,event)"),
+        "onerror"=>$this->getConfig("onerror","showErrors(response,event)"),
         "beforesend"=>"$(event).find('button[type=\"submit\"], input[type=\"submit\"]').html('Saving...')",
         "method"=>"POST","ajaxEvent"=>"onsubmit"]);
         $this->ajaxAttrSetup();
