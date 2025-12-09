@@ -17,12 +17,12 @@ class RouteService
 
     function register($cb){
         // dump($this->parentObject->module);
-        Route::controller("\\".$this->parentObject->controllerClass)->prefix($this->parentObject->module)->name($this->parentObject->module.'.')->group(function () use($cb) {
+        Route::prefix($this->parentObject->module)->name($this->parentObject->module.'.')->group(function () use($cb) {
 
             $cb($this);
             
-            Route::get('/changeStatus/{id}',"changeStatus")->name("changeStatus");
-            Route::get('/{id}/delete',"delete")->name("delete");
+            Route::get('/changeStatus/{id}',"\\".$this->parentObject->controllerClass."@changeStatus")->name("changeStatus");
+            Route::get('/{id}/delete',"\\".$this->parentObject->controllerClass."@delete")->name("delete");
             
         });
 
@@ -46,6 +46,6 @@ class RouteService
             $RouteName = $params[2];
         }
 
-        return Route::$name($path,$action)->name($action);
+        return Route::$name($path, "\\".$this->parentObject->controllerClass."@".$action)->name($action);
     }
 }
