@@ -203,59 +203,63 @@ class CrudController extends Controller
                 && $column->Field!="slug"
                 && $column->Field!="created_at"
             ){
-                $class = InputComponent::class;
-                $option=["validations"=>["required"],"name"=>$column->Field];
+                if(config("crud.components.CrudInput")){
+                    $class = config("crud.components.CrudInput")['class'];//InputComponent::class;
+                    $option=array_merge(["validations"=>["required"],"name"=>$column->Field],config("crud.components.CrudInput")['config']);
+               
+                }
+                else{
+                    $class = InputComponent::class;
+                    $option= ["validations"=>["required"],"name"=>$column->Field];
+                }
+              
                
                 if(substr( $column->Type, 0, 3 ) === "int")
                 {
-                    $class = InputComponent::class;
-                    $option = ["type"=>"number","validations"=>["required"],"name"=>$column->Field];
+                   
+                    $option["type"]="number";
                 }
                 else  if(substr( $column->Type, 0, 7 ) === "decimal")
                 {
-                    $class = InputComponent::class;
-                    $option = ["type"=>"number","validations"=>["required"],"name"=>$column->Field];
+                
+                      $option["type"]="number";
                 }
                 else if(substr( $column->Type, 0, 7 ) === "varchar")
                 {
                     if( strpos($column->Field, "file") !== false){
-                        $class = FileInputComponent::class;
-                        $option = ["validations"=>["required"],"name"=>$column->Field];
+                       
+                        $class = config("crud.components.CrudFile")['class'];
+                       
                     }
-                    else
-                    $class = InputComponent::class;
-
+                    
                 }
                 else if(substr( $column->Type, 0, 4 ) === "enum")
                 {
-                    $class = InputComponent::class;
+                    // $class = InputComponent::class;
                     preg_match("/^enum\(\'(.*)\'\)$/", $column->Type, $matches);
                     $enum = explode("','", $matches[1]);
-
+ 
                      $options = array_map(function($value){ return ucfirst(str_replace('_', ' ', $value)); }, $enum);
-                    $option = ["type"=>"select","name"=>$column->Field,"options"=>array_combine($enum, $options),"validations"=>["required"]];
-                
+                     
+                     $option["type"]="select";
+                    $option["options"]=array_combine($enum, $options);
                      
                 }
                 else if($column->Type === "date")
                 {
-                    $class = InputComponent::class;
-                    $option = ["type"=>"date","name"=>$column->Field,"validations"=>["required"]];
+                     $option["type"]="date";
                 }
                  else if($column->Type === "time")
                 {
-                    $class = InputComponent::class;
-                    $option = ["type"=>"time","name"=>$column->Field,"validations"=>["required"]];
+                     $option["type"]="time";
                 }
                 else if($column->Type === "datetime")
                 {
-                    $class = InputComponent::class;
-                    $option = ["type"=>"datetime","name"=>$column->Field,"validations"=>["required"]];
+                     $option["type"]="datetime";
                 }
                 else if(substr( $column->Type, 0, 4 ) === "text")
                 {
-                    $class = InputComponent::class;
-                    $option = ["type"=>"textarea","name"=>$column->Field,"validations"=>["required"]];
+                     $option["type"]="textarea";
                 }
                 
                 $option["validations"]=$column->Null=="NO"?[$builder->getConfig("validate",true)?"required":""]:[];
