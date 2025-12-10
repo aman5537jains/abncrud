@@ -227,8 +227,13 @@ class CrudController extends Controller
                 else if(substr( $column->Type, 0, 7 ) === "varchar")
                 {
                     if( strpos($column->Field, "file") !== false){
-                       
-                        $class = config("crud.components.CrudFile")['class'];
+                        if(config("crud.components.CrudFile")){
+
+                        }
+                        else{
+                            $class = FileInputComponent::class;
+                        }
+                     
                        
                     }
                     
@@ -271,8 +276,14 @@ class CrudController extends Controller
                 }
             }
         }
-        $arr['submit']=new SubmitButtonComponent( ["label"=>"Save","url"=>$this->action("index"),"saveDB"=>false]);
-      
+        if(config("crud.components.CrudButton")){
+            $btnCls=config("crud.components.CrudButton")['class'];
+            $arr['submit']=new $btnCls( array_merge(["label"=>"Save","url"=>$this->action("index"),"saveDB"=>false],config("crud.components.CrudButton")['config']));
+        }
+        else{
+            $arr['submit']=new SubmitButtonComponent( ["label"=>"Save","url"=>$this->action("index"),"saveDB"=>false]);
+        }
+         
         foreach($arr as $fldName=>$opt){
 
             $builder->addField($fldName,is_array($opt)?(new $opt["class"]($opt["config"])):$opt);
